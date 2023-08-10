@@ -1,5 +1,7 @@
 package app.bot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Component
 public class LanguageBot extends TelegramLongPollingBot {
 
+    Logger loggerFactory = LoggerFactory.getLogger("Logger");
     public LanguageBot(@Value("${bot.token}") String botToken) {
         super(botToken);
     }
@@ -22,8 +25,8 @@ public class LanguageBot extends TelegramLongPollingBot {
        // String text = update.getMessage().getText();
         if (update.hasMessage()) {
             System.out.println(update.getMessage().getText());
-            String text = update.getMessage().getText();
-
+            String text = "TEST_text";
+            loggerFactory.atInfo().log(String.valueOf(chatID));
             sendMessage(chatID,text);
 
         } else {
