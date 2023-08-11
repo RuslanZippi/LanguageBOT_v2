@@ -13,7 +13,15 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButton;
+import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButtonCommands;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class LanguageBot extends TelegramLongPollingBot {
@@ -41,8 +49,47 @@ public class LanguageBot extends TelegramLongPollingBot {
             user.setUserId(111);
 
             dataBaseService.saveUser(user);
+            ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
+            SendMessage message = new SendMessage();
+            message.setText("Menu");
+            message.setChatId(String.valueOf(chatID));
 
-            spamService.sendSpam(this);
+
+            KeyboardRow row_1 = new KeyboardRow();
+            KeyboardRow row_2 = new KeyboardRow();
+            KeyboardRow row_3 = new KeyboardRow();
+            KeyboardRow row_4 = new KeyboardRow();
+            row_1.add("B1");
+            row_2.add("B2");
+            row_3.add("B3");
+            row_4.add("B4");
+
+            List<KeyboardRow> list = new ArrayList<>();
+            list.add(row_1);
+            list.add(row_2);
+            List<KeyboardRow> list2 = new ArrayList<>();
+            //list2.add(row_3);
+            //list2.add(row_4);
+
+
+            markup.setKeyboard(list);
+            String checker  = update.getMessage().getText();
+            if(checker.equals("delete")){
+                markup.setResizeKeyboard(true);
+                //markup.setKeyboard(list2);
+                message.setText("Меню удалено \uD83D\uDC3D");
+                message.setReplyMarkup(markup);
+
+            }
+            else{
+                message.setReplyMarkup(markup);
+            }
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+            //spamService.sendSpam(this);
         } else {
             System.out.println("FALSE");
         }

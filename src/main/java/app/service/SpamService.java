@@ -24,6 +24,7 @@ public class SpamService {
             sendMessage.setChatId(String.valueOf(u.getId()));
             sendMessage.setText("SPAAMM");
             try {
+
                 bot.execute(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
