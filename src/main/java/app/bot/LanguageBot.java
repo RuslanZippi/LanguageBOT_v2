@@ -1,7 +1,11 @@
 package app.bot;
 
+import app.dao.User;
+import app.service.DataBaseService;
+import app.service.SpamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +23,10 @@ public class LanguageBot extends TelegramLongPollingBot {
         super(botToken);
     }
 
+    @Autowired
+    private DataBaseService dataBaseService;
+    @Autowired
+    private SpamService spamService;
     @Override
     public void onUpdateReceived(Update update) {
         long chatID = update.getMessage().getChatId();
@@ -28,7 +36,13 @@ public class LanguageBot extends TelegramLongPollingBot {
             String text = "TEST_text";
             loggerFactory.atInfo().log(String.valueOf(chatID));
             sendMessage(chatID,text);
+            User user = new User();
+            user.setId((int) chatID);
+            user.setUserId(111);
 
+            dataBaseService.saveUser(user);
+
+            spamService.sendSpam(this);
         } else {
             System.out.println("FALSE");
         }

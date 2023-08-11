@@ -15,15 +15,9 @@ public class Application  //implements CommandLineRunner
 
 //    @Autowired
 //    private JdbcTemplate jdbcTemplate;
-//
-//    @Override
-//    public void run(String... args) throws Exception {
-//        String sql = "INSERT INTO book (id,title, author) VALUES ("
-//                + "'1','Nam Ha Minh', 'nam@codejava.net')";
-//
-//        int rows = jdbcTemplate.update(sql);
-//        if (rows > 0) {
-//            System.out.println("A new row has been inserted.");
-//        }
+//    public void insertData() {
+//        jdbcTemplate.execute("INSERT INTO user (id,user_id) VALUES(1, '111')");
+//        //jdbcTemplate.execute("INSERT INTO public.user (id,user_id) VALUES(2, '222')");
+//        //jdbcTemplate.execute("INSERT INTO public.user (id,user_id) VALUES(3, '333')");
 //    }
 }
