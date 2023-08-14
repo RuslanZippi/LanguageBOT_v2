@@ -1,11 +1,10 @@
 package app.dao;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -13,6 +12,23 @@ import lombok.Data;
 public class User {
 
     @Id
-    private int id;
     private int userId;
+
+    @ManyToMany
+    @JoinTable(name = "word_user",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "word_id"))
+    private List<Word> words;
+
+    @ManyToMany
+    @JoinTable(name="theme_user",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "theme_id"))
+    private List<Theme> themes;
+
+    @ManyToMany
+    @JoinTable(name = "subtopic_user",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
+    private List<SubTopic> topics;
 }
