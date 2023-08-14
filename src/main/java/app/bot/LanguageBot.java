@@ -44,7 +44,8 @@ public class LanguageBot extends TelegramLongPollingBot {
                         startMenu(chatID);
                         break;
                     case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
-                        sendMessage(chatID,"Список слов");
+                        int count = dataBaseService.getCountWord(chatID);
+                        sendMessage(chatID,"Количество слов: "+ count);
                         break;
                     default:
                         String text = "TEST_text";
