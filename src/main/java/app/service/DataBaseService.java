@@ -27,8 +27,8 @@ public class DataBaseService {
         int count =(int) wordInt.countWordsByUsersId(user.getId());
         return count;
     }
-    public List<Word> getListWords(User user){
-        List<Word> wordList = wordInt.findByUsersId(user.getId());
+    public List<Word> getListWords(long chatId){
+        List<Word> wordList = wordInt.findByUsersId((int)chatId);
         return wordList;
     }
 }
