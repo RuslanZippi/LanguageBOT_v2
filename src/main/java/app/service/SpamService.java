@@ -1,7 +1,7 @@
 package app.service;
 
 import app.dao.User;
-import app.dao.repository.UserInt;
+import app.dao.repository.UserRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -14,7 +14,7 @@ import java.util.List;
 public class SpamService {
 
     @Autowired
-    private UserInt userInt;
+    private UserRep userInt;
 
     public void sendSpam(TelegramLongPollingBot bot){
         List<User> list = (List<User>) userInt.findAll();

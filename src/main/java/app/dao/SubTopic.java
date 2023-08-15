@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "sub_topic",schema = "public")
+@Table(name = "subtopic",schema = "public")
 public class SubTopic {
 
     @Id
@@ -22,7 +22,7 @@ public class SubTopic {
     private List<User> users;
 
     @ManyToOne
-    @JoinColumn(name = "subtopic_id")
+    @JoinColumn(name = "theme")
     private Theme theme;
 
     @ManyToMany

@@ -15,7 +15,7 @@ public class Theme {
     @Id
     private long id;
     @NotNull
-    private String themeName;
+    private String name;
 
     @ManyToMany
     @JoinTable(name = "theme_user",

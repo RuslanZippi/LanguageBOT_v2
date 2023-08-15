@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserInt extends CrudRepository<User, Integer> {
+public interface UserRep extends CrudRepository<User, Long> {
 
-   User findById(int id);
+   User findById(long id);
 }

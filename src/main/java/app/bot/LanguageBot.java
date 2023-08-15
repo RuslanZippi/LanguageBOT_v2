@@ -9,13 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -38,21 +35,44 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+
         //long chatID = update.getMessage().getChatId();
         if (update.hasMessage()) {
             long chatID = update.getMessage().getChatId();
             loggerFactory.atInfo().log(String.valueOf(chatID));
             if (chatID == 759230168) {
-
+//270122424
                 String textMessage = update.getMessage().getText();
                 switch (textMessage){
                     case "/start":
                         startMenu(chatID);
                         break;
                     case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
-                        getWorld(chatID);
+                        getWorldMenu(chatID);
                         break;
                     case "\uD83D\uDCDAМои темы\uD83D\uDCDA":
+                        getThemeMenu(chatID);
+                        break;
+                    case "\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA":
+                        getRusList(chatID);
+                        break;
+                    case "\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8":
+                        getEngList(chatID);
+                        break;
+                    case "\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD":
+                        break;
+                    case "\uD83D\uDDC2Вывести список тем\uD83D\uDDC2":
+                        getThemeList(chatID);
+                        break;
+                    case "\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1":
+                        getSubtopicList(chatID);
+                        break;
+                    case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
+                        break;
+                    case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
+                        break;
+                    case "\uD83C\uDFE0Назад\uD83C\uDFE0":
+                        startMenu(chatID);
                         break;
                     default:
                         String text = "TEST_text";
@@ -62,21 +82,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                 }
             }
         }
-        if (update.hasCallbackQuery()){
-            String callBack = update.getCallbackQuery().getData();
-            //AnswerCallbackQuery.builder().build().
-            switch (callBack){
-                case "rus":
-                    //sendListOfWords();
-                    break;
-                case "eng":
-                    break;
-                case "new":
-                    break;
-                default:
-                    break;
-            }
-        }
+
     }
 
     @Override
@@ -126,21 +132,21 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     }
 
-    private void getWorld(long chatId){
+    private void getWorldMenu(long chatId){
         ArrayList<String> listOfButtonNames = new ArrayList<>();
 
 
 
-        listOfButtonNames.add("Вывести список слов на русском");
-        listOfButtonNames.add("rus");
-        listOfButtonNames.add("Вывести список слов на английском");
-        listOfButtonNames.add("eng");
-        listOfButtonNames.add("Добавить новое слово");
-        listOfButtonNames.add("new");
-        InlineKeyboardMarkup markup = createMarkup(listOfButtonNames);
+        listOfButtonNames.add("\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA");
+        listOfButtonNames.add("\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8");
+        listOfButtonNames.add("\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD");
+        listOfButtonNames.add("\uD83C\uDFE0Назад\uD83C\uDFE0");
 
-        int wordCount = dataBaseService.getCountWord(chatId);
-        String text = "У вас: "+ wordCount;
+        ReplyKeyboardMarkup markup = createMarkup(listOfButtonNames);
+        markup.setResizeKeyboard(true);
+        markup.setOneTimeKeyboard(true);
+        long wordCount = dataBaseService.getCountWord(chatId);
+        String text = "У вас: "+ wordCount + " слов";
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText(text);
@@ -150,39 +156,120 @@ public class LanguageBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        //sendMessage(chatId,text);
     }
 
-    private InlineKeyboardMarkup createMarkup(ArrayList<String> list){
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+    private ReplyKeyboardMarkup createMarkup(ArrayList<String> list){
+        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
 
-        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        List<KeyboardRow> buttons = new ArrayList<>();
 
-        InlineKeyboardButton button;
-        int size = list.size();
-        for (int x = 0; x < size; x++){
-            button = new InlineKeyboardButton();
-            button.setText(list.get(x));
-            button.setCallbackData(list.get(x+1));
-            x++;
-            buttons.add(button);
+        KeyboardRow wordMenu;
+        for (String s : list){
+            wordMenu = new KeyboardRow();
+            wordMenu.add(s);
+            buttons.add(wordMenu);
         }
-        List<List<InlineKeyboardButton>> lists = new ArrayList<>();
-        lists.add(buttons);
-        markup.setKeyboard(lists);
+        markup.setKeyboard(buttons);
         return markup;
     }
 
-    private void sendListOfWords(long chatId){
-        CallbackQuery callbackQuery = new CallbackQuery();
+    private void getThemeMenu(long chatID){
+        ArrayList<String> listOfButtonNames = new ArrayList<>();
 
-        List<Word> list = dataBaseService.getListWords(chatId);
-        StringBuilder builder = new StringBuilder();
-        for (Word w : list){
-            builder.append(w.getName());
-            builder.append("\n");
+
+
+        listOfButtonNames.add("\uD83D\uDDC2Вывести список тем\uD83D\uDDC2");
+        listOfButtonNames.add("\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1");
+        listOfButtonNames.add("\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD");
+        listOfButtonNames.add("\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD");
+        listOfButtonNames.add("\uD83C\uDFE0Назад\uD83C\uDFE0");
+
+        ReplyKeyboardMarkup markup = createMarkup(listOfButtonNames);
+        markup.setResizeKeyboard(true);
+        markup.setOneTimeKeyboard(true);
+
+        long countTheme = dataBaseService.getCountTheme(chatID);
+        long countSubtopic = dataBaseService.getCountSubtopic(chatID);
+        String text = "У вас: "+ countTheme + " тем(а/ы)\n"+
+                "У вас: " +countSubtopic + " подтем(а/ы)";
+        SendMessage message = new SendMessage();
+        message.setChatId(chatID);
+        message.setText(text);
+        message.setReplyMarkup(markup);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
 
+    }
+
+    private void getRusList(long chatID) {
+        List<String> wordList = dataBaseService.getRusWordList(chatID);
+        sendWordList(chatID,wordList);
+    }
+
+    private void sendWordList(long chatID, List<String> wordList){
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatID);
+        String text;
+        StringBuilder builder = new StringBuilder();
+        if(wordList.size()==0){
+            text = "У вас нет слов";
+        }
+        else {
+            builder.append("Ваши слова:\n");
+            for (int x =0; x < wordList.size(); x++){
+                builder.append((x+1)+") " + wordList.get(x) + "\n");
+            }
+            text = builder.toString();
+        }
+        sendMessage.setText(text);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getEngList(long chatID) {
+        List<String> wordList = dataBaseService.getEngWordList(chatID);
+        sendWordList(chatID,wordList);
+    }
+
+    private void getThemeList(long chatId){
+        sendThemeOrSubtopicList(chatId,dataBaseService.getThemeNameList(chatId),"theme");
+    }
+    private void getSubtopicList(long chatId){
+        sendThemeOrSubtopicList(chatId,dataBaseService.getSubtopicNameList(chatId),"subtopic");
+    }
+    private void sendThemeOrSubtopicList(long chatId, List<String> nameList, String themeOrSubtopic){
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        String text;
+        StringBuilder builder = new StringBuilder();
+        if(themeOrSubtopic.equals("theme")){
+            builder.append("Ваши темы: \n");
+            for (int x = 0; x <nameList.size();x++){
+                builder.append((x+1)+")"+nameList.get(x)+ "\n");
+            }
+        }
+        else{
+            builder.append("Ваши подтемы: \n");
+            for (int x = 0; x <nameList.size();x++){
+                builder.append((x+1)+")"+nameList.get(x)+ "\n");
+            }
+        }
+        message.setText(builder.toString());
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createNewWord(long chatId){
 
     }
 }

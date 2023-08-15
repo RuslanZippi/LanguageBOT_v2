@@ -15,9 +15,12 @@ public class Word {
     private long id;
 
     @NotNull
-    private String name;
+    private String engTranslation;
 
     private String description;
+
+    @NotNull
+    private String rusTranslation;
 
     @ManyToMany
     @JoinTable(name = "word_user",

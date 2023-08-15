@@ -12,7 +12,7 @@ import java.util.List;
 public class User {
 
     @Id
-    private int id;
+    private long id;
 
     @ManyToMany
     @JoinTable(name = "word_user",
