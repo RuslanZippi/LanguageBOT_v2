@@ -1,13 +1,7 @@
 package app.service;
 
-import app.dao.SubTopic;
-import app.dao.Theme;
-import app.dao.User;
-import app.dao.Word;
-import app.dao.repository.SubtopicRep;
-import app.dao.repository.ThemeRep;
-import app.dao.repository.UserRep;
-import app.dao.repository.WordRep;
+import app.dao.*;
+import app.dao.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +22,28 @@ public class DataBaseService {
 
     @Autowired
     private SubtopicRep subtopicRep;
+
+    @Autowired
+    private SaverRep saverRep;
     public void saveUser(User user){
         userInt.save(user);
     }
 
+    public void checkUser(long chatID){
+        User user;
+        Saver saver;
+        if(userInt.findById(chatID)==null){
+            user = new User();
+            user.setId(chatID);
+            userInt.save(user);
+            saver = new Saver();
+            saver.setUser(user);
+            saver.setId(user.getId()+1);
+            saver.setStatus(false);
+            saverRep.save(saver);
+        }
+        //saverRep.save(saver);
+    }
     public long getCountWord(long chatID){
         User user = userInt.findById((int) chatID);
         long count =wordInt.countWordsByUsersId(user.getId());
@@ -86,5 +98,24 @@ public class DataBaseService {
             subtopicNameList.add(t.getName());
         }
         return subtopicNameList;
+    }
+
+    public boolean isCreated(long chatId){
+        boolean checker = saverRep.findByUserId(chatId).isStatus();
+        return checker;
+    }
+    public void createNewWord(long chatId){
+        Saver saver = saverRep.findByUserId(chatId);
+        saver.setStatus(true);
+    }
+    public void saveWord(long chatId, String word, String language){
+        Saver saver = saverRep.findByUserId(chatId);
+        if(language.equals("rus")){
+            saver.setRusWord(word);
+        }
+        else {
+            saver.setEngWord(word);
+        }
+
     }
 }

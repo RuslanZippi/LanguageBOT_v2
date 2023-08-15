@@ -31,4 +31,7 @@ public class User {
     joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
     private List<SubTopic> topics;
+
+    @OneToOne(mappedBy = "user")
+    private Saver saver;
 }
