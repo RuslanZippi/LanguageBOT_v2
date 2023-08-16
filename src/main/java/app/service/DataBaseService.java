@@ -114,8 +114,9 @@ public class DataBaseService {
         saver.setStatus(true);
         saverRep.save(saver);
     }
+
     @Transactional
-    public void createNewWordTest(long chatId){
+    public void createNewWordTest(long chatId) {
         Word word = new Word();
         word.setEngTranslation("engTest");
         word.setRusTranslation("rusTest");
@@ -146,11 +147,11 @@ public class DataBaseService {
         Word word = new Word();
         word.setEngTranslation(saver.getEngWord());
         word.setRusTranslation(saver.getRusWord());
-        //User user = saver.getUser();
-       // user.getWords().add(word);
-        //word.setUsers();
-       // userInt.save(user);
+        User user = saver.getUser();
+        user.getWords().add(word);
+        word.setUsers(List.of(user));
         wordInt.save(word);
+        userInt.save(user);
         saver.setStatus(false);
         saverRep.save(saver);
     }

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name ="user", schema = "public")
+@Table(name = "user", schema = "public")
 public class User {
 
     @Id
@@ -20,16 +20,17 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "word_id"))
     private List<Word> words;
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinTable(name="theme_user",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "theme_id"))
+    @ManyToMany( cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+
+    @JoinTable(name = "theme_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "theme_id"))
     private List<Theme> themes;
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "subtopic_user",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
     private List<SubTopic> topics;
 
     @OneToOne(mappedBy = "user")

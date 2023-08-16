@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 public class LanguageBot extends TelegramLongPollingBot {
@@ -39,24 +40,16 @@ public class LanguageBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             long chatID = update.getMessage().getChatId();
+            dataBaseService.checkUser(chatID);
             loggerFactory.atInfo().log(String.valueOf(chatID));
-            if (chatID == 759230168) {
+            if (chatID == 759230168 || chatID == 889552975) {
 //270122424
                 String textMessage = update.getMessage().getText();
                 System.out.println("Reply :" + update.getMessage().hasReplyMarkup());
                 boolean checker = dataBaseService.isCreated(chatID);
-                if (checker){
-                    System.out.println("TEST");
-                    if(textMessage.startsWith("й")){
-                        System.out.println("Start with й");
-                        saveRusWord(chatID,textMessage);
-                    }
-                    else{
-                        saveEngWord(chatID,textMessage);
-                        saveWord(chatID);
-                    }
-                }
-                else {
+                if (checker) {
+                    patternCheck(chatID, textMessage);
+                } else {
                     switch (textMessage) {
                         case "/start":
                             startMenu(chatID);
@@ -77,8 +70,8 @@ public class LanguageBot extends TelegramLongPollingBot {
                             //saverService.setSaveWord(true);
 
                             sendMessage(chatID, "Введите слово на русском");
-                            //createNewWord(chatID);
-                            dataBaseService.createNewWordTest(chatID);
+                            createNewWord(chatID);
+                            //dataBaseService.createNewWordTest(chatID);
                             break;
                         case "\uD83D\uDDC2Вывести список тем\uD83D\uDDC2":
                             getThemeList(chatID);
@@ -151,6 +144,16 @@ public class LanguageBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
 
+    }
+
+    private void patternCheck(long chatId, String word) {
+        Pattern pattern = Pattern.compile("[а-яА-Яё]*");
+        if (Pattern.matches("[а-яА-Яё]*", word)) {
+            saveRusWord(chatId, word);
+        }
+        if (Pattern.matches("[a-zA-Z]*", word)) {
+            saveEngWord(chatId, word);
+        }
     }
 
     private void getWorldMenu(long chatId) {
@@ -292,17 +295,20 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void createNewWord(long chatId) {
         dataBaseService.createNewWord(chatId);
     }
-    private void saveRusWord(long chatId, String rusWord){
-        dataBaseService.writeWord(chatId,rusWord,"rus");
-        sendMessage(chatId,"Введите слово на английском");
-    }
-    private void saveEngWord(long chatId, String engWord){
-        dataBaseService.writeWord(chatId,engWord,"eng");
+
+    private void saveRusWord(long chatId, String rusWord) {
+        dataBaseService.writeWord(chatId, rusWord, "rus");
+        sendMessage(chatId, "Введите слово на английском");
     }
 
-    private void saveWord(long chatId){
+    private void saveEngWord(long chatId, String engWord) {
+        dataBaseService.writeWord(chatId, engWord, "eng");
+        saveWord(chatId);
+    }
+
+    private void saveWord(long chatId) {
         dataBaseService.saveWord(chatId);
 
-        sendMessage(chatId,"слово добавлено");
+        sendMessage(chatId, "слово добавлено");
     }
 }

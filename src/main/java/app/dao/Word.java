@@ -12,7 +12,7 @@ import java.util.List;
 public class Word {
 
     @Id
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotNull
@@ -29,16 +29,16 @@ public class Word {
     @ManyToMany(mappedBy = "words")
     private List<User> users;
 
-   /* @ManyToMany
+    @ManyToMany
     @JoinTable(name = "word_theme",
-    joinColumns = @JoinColumn(name = "word_id"),
-    inverseJoinColumns = @JoinColumn(name = "theme_id"))
+            joinColumns = @JoinColumn(name = "word_id"),
+            inverseJoinColumns = @JoinColumn(name = "theme_id"))
     private List<Theme> themes;
 
     @ManyToMany
     @JoinTable(name = "word_subtopic",
-    joinColumns = @JoinColumn(name = "word_id"),
-    inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
+            joinColumns = @JoinColumn(name = "word_id"),
+            inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
     private List<SubTopic> topics;
-    */
+
 }
