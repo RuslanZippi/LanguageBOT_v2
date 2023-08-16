@@ -19,6 +19,6 @@ public class Saver {
     private String rusWord;
     private String engWord;
 
-    @OneToOne(mappedBy = "saver")
+    @OneToOne
     private User user;
 }

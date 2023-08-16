@@ -11,21 +11,22 @@ import java.util.List;
 public class SubTopic {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     private String name;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinTable(name = "subtopic_user",
     joinColumns = @JoinColumn(name = "subtopic_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> users;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "theme")
     private Theme theme;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinTable(name = "word_subtopic",
     joinColumns = @JoinColumn(name = "subtopic_id"),
     inverseJoinColumns = @JoinColumn(name = "word_id"))

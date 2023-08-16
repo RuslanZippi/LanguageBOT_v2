@@ -43,50 +43,62 @@ public class LanguageBot extends TelegramLongPollingBot {
             if (chatID == 759230168) {
 //270122424
                 String textMessage = update.getMessage().getText();
+                System.out.println("Reply :" + update.getMessage().hasReplyMarkup());
                 boolean checker = dataBaseService.isCreated(chatID);
                 if (checker){
-
+                    System.out.println("TEST");
+                    if(textMessage.startsWith("й")){
+                        System.out.println("Start with й");
+                        saveRusWord(chatID,textMessage);
+                    }
+                    else{
+                        saveEngWord(chatID,textMessage);
+                        saveWord(chatID);
+                    }
                 }
-                switch (textMessage) {
-                    case "/start":
-                        startMenu(chatID);
-                        break;
-                    case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
-                        getWorldMenu(chatID);
-                        break;
-                    case "\uD83D\uDCDAМои темы\uD83D\uDCDA":
-                        getThemeMenu(chatID);
-                        break;
-                    case "\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA":
-                        getRusList(chatID);
-                        break;
-                    case "\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8":
-                        getEngList(chatID);
-                        break;
-                    case "\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD":
-                        //saverService.setSaveWord(true);
+                else {
+                    switch (textMessage) {
+                        case "/start":
+                            startMenu(chatID);
+                            break;
+                        case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
+                            getWorldMenu(chatID);
+                            break;
+                        case "\uD83D\uDCDAМои темы\uD83D\uDCDA":
+                            getThemeMenu(chatID);
+                            break;
+                        case "\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA":
+                            getRusList(chatID);
+                            break;
+                        case "\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8":
+                            getEngList(chatID);
+                            break;
+                        case "\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD":
+                            //saverService.setSaveWord(true);
 
-                        sendMessage(chatID, "Введите слово на русском");
-                        //createNewWord(chatID);
-                        break;
-                    case "\uD83D\uDDC2Вывести список тем\uD83D\uDDC2":
-                        getThemeList(chatID);
-                        break;
-                    case "\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1":
-                        getSubtopicList(chatID);
-                        break;
-                    case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
-                        break;
-                    case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
-                        break;
-                    case "\uD83C\uDFE0Назад\uD83C\uDFE0":
-                        startMenu(chatID);
-                        break;
-                    default:
-                        String text = "TEST_text";
-                        System.out.println(update.getMessage().getText());
-                        sendMessage(chatID, text);
-                        break;
+                            sendMessage(chatID, "Введите слово на русском");
+                            //createNewWord(chatID);
+                            dataBaseService.createNewWordTest(chatID);
+                            break;
+                        case "\uD83D\uDDC2Вывести список тем\uD83D\uDDC2":
+                            getThemeList(chatID);
+                            break;
+                        case "\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1":
+                            getSubtopicList(chatID);
+                            break;
+                        case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
+                            break;
+                        case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
+                            break;
+                        case "\uD83C\uDFE0Назад\uD83C\uDFE0":
+                            startMenu(chatID);
+                            break;
+                        default:
+                            String text = "TEST_text";
+                            System.out.println(update.getMessage().getText());
+                            sendMessage(chatID, text);
+                            break;
+                    }
                 }
             }
         }
@@ -153,6 +165,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         ReplyKeyboardMarkup markup = createMarkup(listOfButtonNames);
         markup.setResizeKeyboard(true);
         markup.setOneTimeKeyboard(true);
+
         long wordCount = dataBaseService.getCountWord(chatId);
         String text = "У вас: " + wordCount + " слов";
         SendMessage message = new SendMessage();
@@ -278,5 +291,18 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     private void createNewWord(long chatId) {
         dataBaseService.createNewWord(chatId);
+    }
+    private void saveRusWord(long chatId, String rusWord){
+        dataBaseService.writeWord(chatId,rusWord,"rus");
+        sendMessage(chatId,"Введите слово на английском");
+    }
+    private void saveEngWord(long chatId, String engWord){
+        dataBaseService.writeWord(chatId,engWord,"eng");
+    }
+
+    private void saveWord(long chatId){
+        dataBaseService.saveWord(chatId);
+
+        sendMessage(chatId,"слово добавлено");
     }
 }

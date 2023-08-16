@@ -12,23 +12,24 @@ import java.util.List;
 public class Word {
 
     @Id
+
     private long id;
 
     @NotNull
+    @Column(name = "eng_translation")
     private String engTranslation;
 
+    @Column(name = "description")
     private String description;
 
     @NotNull
+    @Column(name = "rus_translation")
     private String rusTranslation;
 
-    @ManyToMany
-    @JoinTable(name = "word_user",
-    joinColumns = @JoinColumn(name = "word_id"),
-    inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @ManyToMany(mappedBy = "words")
     private List<User> users;
 
-    @ManyToMany
+   /* @ManyToMany
     @JoinTable(name = "word_theme",
     joinColumns = @JoinColumn(name = "word_id"),
     inverseJoinColumns = @JoinColumn(name = "theme_id"))
@@ -39,4 +40,5 @@ public class Word {
     joinColumns = @JoinColumn(name = "word_id"),
     inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
     private List<SubTopic> topics;
+    */
 }
