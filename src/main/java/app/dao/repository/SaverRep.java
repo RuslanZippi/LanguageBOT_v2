@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface SaverRep  extends CrudRepository<Saver,Long> {
 
     Saver findByUserId(long id);
+
 }

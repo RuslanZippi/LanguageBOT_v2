@@ -27,10 +27,6 @@ public class DataBaseService {
     @Autowired
     private SaverRep saverRep;
 
-    public void saveUser(User user) {
-        userInt.save(user);
-    }
-
     public void checkUser(long chatID) {
         User user;
         Saver saver;
@@ -44,7 +40,6 @@ public class DataBaseService {
             saver.setStatus(false);
             saverRep.save(saver);
         }
-        //saverRep.save(saver);
     }
 
     public long getCountWord(long chatID) {
@@ -104,31 +99,14 @@ public class DataBaseService {
         return subtopicNameList;
     }
 
-    public boolean isCreated(long chatId) {
-        boolean checker = saverRep.findByUserId(chatId).isStatus();
-        return checker;
+    public boolean isCreatedWord(long chatId) {
+        return saverRep.findByUserId(chatId).isStatus();
     }
 
     public void createNewWord(long chatId) {
         Saver saver = saverRep.findByUserId(chatId);
         saver.setStatus(true);
         saverRep.save(saver);
-    }
-
-    @Transactional
-    public void createNewWordTest(long chatId) {
-        Word word = new Word();
-        word.setEngTranslation("engTest");
-        word.setRusTranslation("rusTest");
-        word.setId(1223);
-//        List<User> userList = new ArrayList<>();
-//        userList.add(userInt.findById(759230168));
-        //word.setUsers(userList);
-        wordInt.save(word);
-//        Theme theme = new Theme();
-//        theme.setName("TestTheme");
-//        themeRep.save(theme);
-
     }
 
     public void writeWord(long chatId, String word, String language) {
@@ -153,7 +131,25 @@ public class DataBaseService {
         wordInt.save(word);
         userInt.save(user);
         saver.setStatus(false);
+        saver.setRusWord("");
+        saver.setEngWord("");
         saverRep.save(saver);
     }
 
+    public void stopSaveWord(long chatId) {
+        Saver saver = saverRep.findByUserId(chatId);
+        saver.setStatus(false);
+        saver.setRusWord("");
+        saver.setEngWord("");
+        saverRep.save(saver);
+    }
+
+    public boolean ifExitsRus(long chatId) {
+        //System.out.println("RusWord: " + saverRep.findByUserId(chatId).getRusWord().equals(null));
+        return saverRep.findByUserId(chatId).getRusWord().equals("");
+    }
+
+    public boolean ifExitsEng(long chatId) {
+        return saverRep.findByUserId(chatId).getEngWord().equals("");
+    }
 }
