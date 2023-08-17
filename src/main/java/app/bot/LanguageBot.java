@@ -103,29 +103,46 @@ public class LanguageBot extends TelegramLongPollingBot {
                         if (dataBaseService.ifCreatedTheme(chatID)){
                             saveNewTheme(chatID,textMessage);
                         }
+                        if(dataBaseService.ifCreatedSubtopic(chatID)){
+                            System.out.println("Creating new subtopic");
+                            if(update.hasCallbackQuery()){
+                                System.out.println(update.getCallbackQuery().getData());
+                            }
+                        }
                         break;
                 }
+            }
+        }
+        if(update.hasCallbackQuery()){
+            if(update.hasCallbackQuery()){
+                String callback = update.getCallbackQuery().getData();
+                //long chatId =Long.parseLong(update.getCallbackQuery().getId());
+                //System.out.println("ChatId = " + chatId);
+
             }
         }
 
     }
 
+    private void saveIdParentTheme(long chatID, long parentThemeId){
+        dataBaseService.saveIdParentTheme(chatID, parentThemeId);
+    }
     /**
      * Метод создает встроенную клавиатуру для выбора темы
      * @param chatId id пользователя
      * @param buttonsName список названий тем для кнопок клавиатуры
      * @return Возвращает готовую клавиатуру
      */
-    private InlineKeyboardMarkup createInlineKeyboard(long chatId, List<String> buttonsName){
+    private InlineKeyboardMarkup createInlineKeyboard(long chatId, List<Theme> buttonsName){
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton button;
         List<InlineKeyboardButton> buttonsThemeList = new ArrayList<>();
-        for (int x = 0; x <buttonsName.size(); x++){
+        int x = 1;
+        for(Theme t : buttonsName){
             button = new InlineKeyboardButton();
-            button.setText(String.valueOf(x+1));
-            button.setCallbackData(String.valueOf(x+1));
-            buttonsThemeList.add(button);
+            button.setText(String.valueOf(x));
+            button.setCallbackData(String.valueOf(t.getId()));
         }
         List<InlineKeyboardButton> buttonChoice = new ArrayList<>();
         button = new InlineKeyboardButton();
@@ -147,6 +164,7 @@ public class LanguageBot extends TelegramLongPollingBot {
      * @param chatID id пользователя
      */
     private void createNewSubtopic(long chatID) {
+        dataBaseService.createNewSubtopic(chatID);
         SendMessage message = new SendMessage();
         message.setChatId(chatID);
 
@@ -154,7 +172,7 @@ public class LanguageBot extends TelegramLongPollingBot {
             sendMessage(chatID,"Для создания подтемы, необходима хотя бы одна тема. У вас нет тем");
         }
         else {
-            message.setReplyMarkup(createInlineKeyboard(chatID,dataBaseService.getThemeNameList(chatID)));
+            message.setReplyMarkup(createInlineKeyboard(chatID,dataBaseService.getThemeList(chatID)));
             sendThemeOrSubtopicList(chatID,dataBaseService.getThemeNameList(chatID),"theme");
             message.setText("К какой теме создать подтему?");
             try {
@@ -165,6 +183,10 @@ public class LanguageBot extends TelegramLongPollingBot {
         }
     }
 
+    private void saveNewSubtopic(long chatId, String parentThemeId, String subtopicName){
+        dataBaseService.saveNewSubtopic(chatId,parentThemeId,subtopicName);
+        sendMessage(chatId,"Новая подтема добавлена");
+    }
     /**
      * Метод сохраняет новую тему
      * @param chatId id пользователя

@@ -11,5 +11,5 @@ public interface ThemeRep extends CrudRepository<Theme, Long> {
 
     long countThemesByUsersId(long id);
     List<Theme> findByUsersId(long id);
-
+    Theme findById(long id);
 }

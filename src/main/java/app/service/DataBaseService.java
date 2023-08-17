@@ -177,12 +177,47 @@ public class DataBaseService {
         setDefault(saverRep.findByUserId(chatId));
     }
 
+    @Transactional
+    public void saveNewSubtopic(long chatId,String themeId,String subtopicName){
+        User user = userInt.findById(chatId);
+        Theme theme = themeRep.findById(Long.parseLong(themeId));
+        SubTopic subTopic = new SubTopic();
+        user.getTopics().add(subTopic);
+        theme.getSubTopics().add(subTopic);
+        subTopic.setUsers(List.of(user));
+        subTopic.setTheme(theme);
+        subtopicRep.save(subTopic);
+        themeRep.save(theme);
+        userInt.save(user);
+        saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+
+    }
+
+    public List<Theme> getThemeList(long chatId){
+        return themeRep.findByUsersId(chatId);
+    }
     public boolean ifCreatedTheme(long chatId){
         return saverRep.findByUserId(chatId).isStatusCreateTheme();
     }
     public void createNewTheme(long chatID) {
         Saver saver = saverRep.findByUserId(chatID);
         saver.setStatusCreateTheme(true);
+        saverRep.save(saver);
+    }
+
+    public void createNewSubtopic(long chatId){
+        Saver saver =  saverRep.findByUserId(chatId);
+        saver.setStatusCreateSubtopic(true);
+        saverRep.save(saver);
+    }
+
+    public boolean ifCreatedSubtopic(long chatID) {
+        return saverRep.findByUserId(chatID).isStatusCreateSubtopic();
+    }
+
+    public void saveIdParentTheme(long chatID, long parentThemeId) {
+        Saver saver = saverRep.findByUserId(chatID);
+        saver.setIdParentTheme(parentThemeId);
         saverRep.save(saver);
     }
 }
