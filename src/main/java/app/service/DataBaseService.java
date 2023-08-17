@@ -34,7 +34,6 @@ public class DataBaseService {
         if (userInt.findById(chatID) == null) {
             user = new User();
             user.setId(chatID);
-            // userInt.save(user);
             saver = new Saver();
             saver.setUser(user);
             saver.setId(user.getId() + 1);
@@ -185,6 +184,5 @@ public class DataBaseService {
         Saver saver = saverRep.findByUserId(chatID);
         saver.setStatusCreateTheme(true);
         saverRep.save(saver);
-
     }
 }

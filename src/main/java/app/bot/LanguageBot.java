@@ -1,5 +1,6 @@
 package app.bot;
 
+import app.dao.Theme;
 import app.service.DataBaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,13 +9,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Component
@@ -78,6 +84,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                     case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
+                        createNewSubtopic(chatID);
                         break;
                     case "\uD83C\uDFE0Назад\uD83C\uDFE0":
                         dataBaseService.stopSaveWord(chatID);
@@ -98,16 +105,80 @@ public class LanguageBot extends TelegramLongPollingBot {
                         }
                         break;
                 }
-                // }
             }
         }
 
     }
 
+    /**
+     * Метод создает встроенную клавиатуру для выбора темы
+     * @param chatId id пользователя
+     * @param buttonsName список названий тем для кнопок клавиатуры
+     * @return Возвращает готовую клавиатуру
+     */
+    private InlineKeyboardMarkup createInlineKeyboard(long chatId, List<String> buttonsName){
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton button;
+        List<InlineKeyboardButton> buttonsThemeList = new ArrayList<>();
+        for (int x = 0; x <buttonsName.size(); x++){
+            button = new InlineKeyboardButton();
+            button.setText(String.valueOf(x+1));
+            button.setCallbackData(String.valueOf(x+1));
+            buttonsThemeList.add(button);
+        }
+        List<InlineKeyboardButton> buttonChoice = new ArrayList<>();
+        button = new InlineKeyboardButton();
+        String newTheme = "Создать новую новую тему";
+        button.setText(newTheme);
+        button.setCallbackData(newTheme.toLowerCase(Locale.ROOT));
+        buttonChoice.add(button);
+
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        list.add(buttonsThemeList);
+        list.add(buttonChoice);
+        markup.setKeyboard(list);
+        return markup;
+
+    }
+
+    /**
+     * Начало создания подтемы, в методы идет проверка на существование тем, для выбор к какой теме отнести новуб подтему
+     * @param chatID id пользователя
+     */
+    private void createNewSubtopic(long chatID) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatID);
+
+        if(dataBaseService.getCountTheme(chatID)==0){
+            sendMessage(chatID,"Для создания подтемы, необходима хотя бы одна тема. У вас нет тем");
+        }
+        else {
+            message.setReplyMarkup(createInlineKeyboard(chatID,dataBaseService.getThemeNameList(chatID)));
+            sendThemeOrSubtopicList(chatID,dataBaseService.getThemeNameList(chatID),"theme");
+            message.setText("К какой теме создать подтему?");
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Метод сохраняет новую тему
+     * @param chatId id пользователя
+     * @param themeName название новой темы
+     */
     private void saveNewTheme(long chatId, String themeName){
         dataBaseService.saveTheme(chatId,themeName);
         sendMessage(chatId,"Новая тема добавлена");
     }
+
+    /**
+     * Начало создания новой темы
+     * @param chatID id пользователя
+     */
     private void createNewTheme(long chatID) {
         dataBaseService.createNewTheme(chatID);
     }
