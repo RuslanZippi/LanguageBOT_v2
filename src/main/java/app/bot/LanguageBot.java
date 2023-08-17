@@ -73,6 +73,8 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                     case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
+                        createNewTheme(chatID);
+                        sendMessage(chatID,"Введите название темы");
                         break;
                     case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
@@ -91,12 +93,23 @@ public class LanguageBot extends TelegramLongPollingBot {
                                 patternCheck(chatID,textMessage,"eng");
                             }
                         }
+                        if (dataBaseService.ifCreatedTheme(chatID)){
+                            saveNewTheme(chatID,textMessage);
+                        }
                         break;
                 }
                 // }
             }
         }
 
+    }
+
+    private void saveNewTheme(long chatId, String themeName){
+        dataBaseService.saveTheme(chatId,themeName);
+        sendMessage(chatId,"Новая тема добавлена");
+    }
+    private void createNewTheme(long chatID) {
+        dataBaseService.createNewTheme(chatID);
     }
 
     @Override

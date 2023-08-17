@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +34,19 @@ public class DataBaseService {
         if (userInt.findById(chatID) == null) {
             user = new User();
             user.setId(chatID);
-            userInt.save(user);
+            // userInt.save(user);
             saver = new Saver();
             saver.setUser(user);
             saver.setId(user.getId() + 1);
-            saver.setStatus(false);
+            saver.setStatusCreateWord(false);
+            saver.setStatusCreateTheme(false);
+            saver.setStatusCreateSubtopic(false);
+            saver.setRusWord("");
+            saver.setEngWord("");
+            saver.setThemeName("");
+            saver.setSubtopicName("");
+            user.setSaver(saver);
+            userInt.save(user);
             saverRep.save(saver);
         }
     }
@@ -100,12 +109,12 @@ public class DataBaseService {
     }
 
     public boolean isCreatedWord(long chatId) {
-        return saverRep.findByUserId(chatId).isStatus();
+        return saverRep.findByUserId(chatId).isStatusCreateWord();
     }
 
     public void createNewWord(long chatId) {
         Saver saver = saverRep.findByUserId(chatId);
-        saver.setStatus(true);
+        saver.setStatusCreateWord(true);
         saverRep.save(saver);
     }
 
@@ -130,26 +139,52 @@ public class DataBaseService {
         word.setUsers(List.of(user));
         wordInt.save(word);
         userInt.save(user);
-        saver.setStatus(false);
+        saverRep.save(setDefault(saver));
+    }
+
+    private Saver setDefault(Saver saver) {
+        saver.setStatusCreateWord(false);
+        saver.setStatusCreateTheme(false);
+        saver.setStatusCreateSubtopic(false);
         saver.setRusWord("");
         saver.setEngWord("");
-        saverRep.save(saver);
+        saver.setThemeName("");
+        saver.setSubtopicName("");
+        return saver;
     }
 
     public void stopSaveWord(long chatId) {
         Saver saver = saverRep.findByUserId(chatId);
-        saver.setStatus(false);
-        saver.setRusWord("");
-        saver.setEngWord("");
-        saverRep.save(saver);
+        saverRep.save(setDefault(saver));
     }
 
     public boolean ifExitsRus(long chatId) {
-        //System.out.println("RusWord: " + saverRep.findByUserId(chatId).getRusWord().equals(null));
         return saverRep.findByUserId(chatId).getRusWord().equals("");
     }
 
     public boolean ifExitsEng(long chatId) {
         return saverRep.findByUserId(chatId).getEngWord().equals("");
+    }
+
+    @Transactional
+    public void saveTheme(long chatId, String themeName) {
+        User user = userInt.findById(chatId);
+        Theme theme = new Theme();
+        theme.setName(themeName);
+        user.getThemes().add(theme);
+        theme.setUsers(List.of(user));
+        themeRep.save(theme);
+        userInt.save(user);
+        setDefault(saverRep.findByUserId(chatId));
+    }
+
+    public boolean ifCreatedTheme(long chatId){
+        return saverRep.findByUserId(chatId).isStatusCreateTheme();
+    }
+    public void createNewTheme(long chatID) {
+        Saver saver = saverRep.findByUserId(chatID);
+        saver.setStatusCreateTheme(true);
+        saverRep.save(saver);
+
     }
 }

@@ -3,11 +3,14 @@ package app.dao;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "word", schema = "public")
 public class Word {
 
@@ -29,13 +32,13 @@ public class Word {
     @ManyToMany(mappedBy = "words")
     private List<User> users;
 
-    @ManyToMany
+    @ManyToMany( fetch = FetchType.LAZY)
     @JoinTable(name = "word_theme",
             joinColumns = @JoinColumn(name = "word_id"),
             inverseJoinColumns = @JoinColumn(name = "theme_id"))
     private List<Theme> themes;
 
-    @ManyToMany
+    @ManyToMany( fetch = FetchType.LAZY)
     @JoinTable(name = "word_subtopic",
             joinColumns = @JoinColumn(name = "word_id"),
             inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
