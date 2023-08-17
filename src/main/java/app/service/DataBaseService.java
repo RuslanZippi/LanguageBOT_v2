@@ -43,6 +43,7 @@ public class DataBaseService {
             saver.setRusWord("");
             saver.setEngWord("");
             saver.setThemeName("");
+            saver.setIdParentTheme("");
             saver.setSubtopicName("");
             user.setSaver(saver);
             userInt.save(user);
@@ -178,12 +179,15 @@ public class DataBaseService {
     }
 
     @Transactional
-    public void saveNewSubtopic(long chatId,String themeId,String subtopicName){
+    public void saveNewSubtopic(long chatId,String subtopicName){
         User user = userInt.findById(chatId);
-        Theme theme = themeRep.findById(Long.parseLong(themeId));
+        Saver saver = saverRep.findByUserId(chatId);
+
+        Theme theme = themeRep.findById(Long.parseLong(saver.getIdParentTheme()));
         SubTopic subTopic = new SubTopic();
         user.getTopics().add(subTopic);
         theme.getSubTopics().add(subTopic);
+        subTopic.setName(subtopicName);
         subTopic.setUsers(List.of(user));
         subTopic.setTheme(theme);
         subtopicRep.save(subTopic);
@@ -217,7 +221,7 @@ public class DataBaseService {
 
     public void saveIdParentTheme(long chatID, long parentThemeId) {
         Saver saver = saverRep.findByUserId(chatID);
-        saver.setIdParentTheme(parentThemeId);
+        saver.setIdParentTheme(String.valueOf(parentThemeId));
         saverRep.save(saver);
     }
 }

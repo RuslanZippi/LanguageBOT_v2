@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -80,7 +78,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                     case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
                         createNewTheme(chatID);
-                        sendMessage(chatID,"Введите название темы");
+                        sendMessage(chatID, "Введите название темы");
                         break;
                     case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
@@ -91,58 +89,60 @@ public class LanguageBot extends TelegramLongPollingBot {
                         startMenu(chatID);
                         break;
                     default:
-                        if(dataBaseService.isCreatedWord(chatID)){
+                        if (dataBaseService.isCreatedWord(chatID)) {
                             System.out.println("if exitRus: " + dataBaseService.ifExitsRus(chatID));
-                            if(dataBaseService.ifExitsRus(chatID)){
-                                patternCheck(chatID,textMessage,"rus");
-                            }
-                            else if( dataBaseService.ifExitsEng(chatID)){
-                                patternCheck(chatID,textMessage,"eng");
+                            if (dataBaseService.ifExitsRus(chatID)) {
+                                patternCheck(chatID, textMessage, "rus");
+                            } else if (dataBaseService.ifExitsEng(chatID)) {
+                                patternCheck(chatID, textMessage, "eng");
                             }
                         }
-                        if (dataBaseService.ifCreatedTheme(chatID)){
-                            saveNewTheme(chatID,textMessage);
+                        if (dataBaseService.ifCreatedTheme(chatID)) {
+                            saveNewTheme(chatID, textMessage);
                         }
-                        if(dataBaseService.ifCreatedSubtopic(chatID)){
+                        if (dataBaseService.ifCreatedSubtopic(chatID)) {
                             System.out.println("Creating new subtopic");
-                            if(update.hasCallbackQuery()){
-                                System.out.println(update.getCallbackQuery().getData());
-                            }
+                            saveNewSubtopic(chatID,textMessage);
                         }
                         break;
                 }
             }
         }
-        if(update.hasCallbackQuery()){
-            if(update.hasCallbackQuery()){
+        if (update.hasCallbackQuery()) {
+            if (update.hasCallbackQuery()) {
                 String callback = update.getCallbackQuery().getData();
-                //long chatId =Long.parseLong(update.getCallbackQuery().getId());
-                //System.out.println("ChatId = " + chatId);
-
+                long chatId = update.getCallbackQuery().getFrom().getId();
+                saveIdParentTheme(chatId, Long.parseLong(callback));
+                sendMessage(chatId, "Введите  название темы");
             }
         }
 
     }
 
-    private void saveIdParentTheme(long chatID, long parentThemeId){
+    private void saveIdParentTheme(long chatID, long parentThemeId) {
         dataBaseService.saveIdParentTheme(chatID, parentThemeId);
     }
+
     /**
      * Метод создает встроенную клавиатуру для выбора темы
-     * @param chatId id пользователя
+     *
+     * @param chatId      id пользователя
      * @param buttonsName список названий тем для кнопок клавиатуры
      * @return Возвращает готовую клавиатуру
      */
-    private InlineKeyboardMarkup createInlineKeyboard(long chatId, List<Theme> buttonsName){
+    private InlineKeyboardMarkup createInlineKeyboard(long chatId, List<Theme> buttonsName) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton button;
         List<InlineKeyboardButton> buttonsThemeList = new ArrayList<>();
         int x = 1;
-        for(Theme t : buttonsName){
+        for (Theme t : buttonsName) {
             button = new InlineKeyboardButton();
             button.setText(String.valueOf(x));
             button.setCallbackData(String.valueOf(t.getId()));
+            buttonsThemeList.add(button);
+            x++;
+
         }
         List<InlineKeyboardButton> buttonChoice = new ArrayList<>();
         button = new InlineKeyboardButton();
@@ -161,6 +161,7 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     /**
      * Начало создания подтемы, в методы идет проверка на существование тем, для выбор к какой теме отнести новуб подтему
+     *
      * @param chatID id пользователя
      */
     private void createNewSubtopic(long chatID) {
@@ -168,12 +169,11 @@ public class LanguageBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(chatID);
 
-        if(dataBaseService.getCountTheme(chatID)==0){
-            sendMessage(chatID,"Для создания подтемы, необходима хотя бы одна тема. У вас нет тем");
-        }
-        else {
-            message.setReplyMarkup(createInlineKeyboard(chatID,dataBaseService.getThemeList(chatID)));
-            sendThemeOrSubtopicList(chatID,dataBaseService.getThemeNameList(chatID),"theme");
+        if (dataBaseService.getCountTheme(chatID) == 0) {
+            sendMessage(chatID, "Для создания подтемы, необходима хотя бы одна тема. У вас нет тем");
+        } else {
+            message.setReplyMarkup(createInlineKeyboard(chatID, dataBaseService.getThemeList(chatID)));
+            sendThemeOrSubtopicList(chatID, dataBaseService.getThemeNameList(chatID), "theme");
             message.setText("К какой теме создать подтему?");
             try {
                 execute(message);
@@ -183,22 +183,25 @@ public class LanguageBot extends TelegramLongPollingBot {
         }
     }
 
-    private void saveNewSubtopic(long chatId, String parentThemeId, String subtopicName){
-        dataBaseService.saveNewSubtopic(chatId,parentThemeId,subtopicName);
-        sendMessage(chatId,"Новая подтема добавлена");
+    private void saveNewSubtopic(long chatId, String subtopicName) {
+        dataBaseService.saveNewSubtopic(chatId, subtopicName);
+        sendMessage(chatId, "Новая подтема добавлена");
     }
+
     /**
      * Метод сохраняет новую тему
-     * @param chatId id пользователя
+     *
+     * @param chatId    id пользователя
      * @param themeName название новой темы
      */
-    private void saveNewTheme(long chatId, String themeName){
-        dataBaseService.saveTheme(chatId,themeName);
-        sendMessage(chatId,"Новая тема добавлена");
+    private void saveNewTheme(long chatId, String themeName) {
+        dataBaseService.saveTheme(chatId, themeName);
+        sendMessage(chatId, "Новая тема добавлена");
     }
 
     /**
      * Начало создания новой темы
+     *
      * @param chatID id пользователя
      */
     private void createNewTheme(long chatID) {
@@ -271,20 +274,18 @@ public class LanguageBot extends TelegramLongPollingBot {
      * @param word   вводимое слово
      */
     private void patternCheck(long chatId, String word, String needLang) {
-        if(needLang.equals("rus")){
+        if (needLang.equals("rus")) {
             if (Pattern.matches("[а-яА-Яё]*", word)) {
                 saveRusWord(chatId, word);
-            }
-            else{
-                sendMessage(chatId,"Неверный ввод \n" + "Введите слово на русском");
+            } else {
+                sendMessage(chatId, "Неверный ввод \n" + "Введите слово на русском");
             }
         }
-        if(needLang.equals("eng")){
+        if (needLang.equals("eng")) {
             if (Pattern.matches("[a-zA-Z]*", word)) {
                 saveEngWord(chatId, word);
-            }
-            else {
-                sendMessage(chatId,"Неверный ввод \n" + "Введите слово на английском");
+            } else {
+                sendMessage(chatId, "Неверный ввод \n" + "Введите слово на английском");
             }
         }
     }

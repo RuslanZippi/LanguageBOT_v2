@@ -14,7 +14,7 @@ import java.util.List;
 public class SubTopic {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String name;
@@ -22,7 +22,7 @@ public class SubTopic {
     @ManyToMany(mappedBy = "topics")
     private List<User> users;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theme")
     private Theme theme;
 

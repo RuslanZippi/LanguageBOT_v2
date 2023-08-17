@@ -27,7 +27,7 @@ public class Saver {
     private String themeName;
     private String subtopicName;
 
-    private long idParentTheme;
+    private String idParentTheme;
 
     @OneToOne
     private User user;
