@@ -2,6 +2,7 @@ package app.bot;
 
 import app.dao.Theme;
 import app.service.DataBaseService;
+import app.service.TranslationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class LanguageBot extends TelegramLongPollingBot {
     @Autowired
     private DataBaseService dataBaseService;
 
+    @Autowired
+    private TranslationService translationService;
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -47,6 +51,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                         startMenu(chatID);
                         break;
                     case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
+                        System.out.println(translationService.getRusTranslation("Word"));
                         dataBaseService.stopSaveWord(chatID);
                         getWorldMenu(chatID);
                         break;
