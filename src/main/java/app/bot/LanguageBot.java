@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -51,7 +53,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                         startMenu(chatID);
                         break;
                     case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
-                        System.out.println(translationService.getRusTranslation("Word"));
+                        //System.out.println(translationService.getRusTranslation("Word"));
                         dataBaseService.stopSaveWord(chatID);
                         getWorldMenu(chatID);
                         break;
@@ -69,7 +71,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                     case "\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
-                        sendMessage(chatID, "Введите слово на русском");
+                        //sendMessage(chatID, "Введите слово на русском");
                         createNewWord(chatID);
                         break;
                     case "\uD83D\uDDC2Вывести список тем\uD83D\uDDC2":
@@ -107,21 +109,55 @@ public class LanguageBot extends TelegramLongPollingBot {
                         }
                         if (dataBaseService.ifCreatedSubtopic(chatID)) {
                             System.out.println("Creating new subtopic");
-                            saveNewSubtopic(chatID,textMessage);
+                            saveNewSubtopic(chatID, textMessage);
                         }
                         break;
                 }
             }
         }
         if (update.hasCallbackQuery()) {
-            if (update.hasCallbackQuery()) {
-                String callback = update.getCallbackQuery().getData();
-                long chatId = update.getCallbackQuery().getFrom().getId();
-                saveIdParentTheme(chatId, Long.parseLong(callback));
-                sendMessage(chatId, "Введите  название темы");
+            long id = update.getCallbackQuery().getFrom().getId();
+            String callback = update.getCallbackQuery().getData();
+            System.out.println("update");
+            if (dataBaseService.ifCreatedSubtopic(id)) {
+                System.out.println("subtopic");
+                saveIdParentTheme(id, Long.parseLong(callback));
+                sendMessage(id, "Введите название подтемы");
+            }
+            if (dataBaseService.isCreatedWord(id)) {
+                System.out.println(callback);
+                switch (callback) {
+                    case "-10":
+                        sendQuestionOne(id);
+                        break;
+                    case "-20":
+
+                        break;
+                    case "-30":
+                        break;
+                }
+                if(Long.parseLong(callback)>0&&callback.startsWith("theme")){
+                    dataBaseService.setWordToTheme(id,Long.parseLong(callback));
+                }
+                else {
+
+                }
             }
         }
+    }
 
+    private void sendQuestionOne(long id) {
+        sendThemeOrSubtopicList(id, dataBaseService.getThemeNameList(id), "theme");
+        SendMessage sendMessage = new SendMessage();
+
+        sendMessage.setChatId(id);
+        sendMessage.setText("К какой теме добавить слово");
+        sendMessage.setReplyMarkup(createInlineKeyboard(id, dataBaseService.getThemeList(id)));
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveIdParentTheme(long chatID, long parentThemeId) {
@@ -143,6 +179,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         int x = 1;
         for (Theme t : buttonsName) {
             button = new InlineKeyboardButton();
+            String text = "theme" + t.getId();
             button.setText(String.valueOf(x));
             button.setCallbackData(String.valueOf(t.getId()));
             buttonsThemeList.add(button);
@@ -486,7 +523,44 @@ public class LanguageBot extends TelegramLongPollingBot {
      * @param chatId id пользователя
      */
     private void createNewWord(long chatId) {
+        List<String> buttonName = new ArrayList<>();
+        SendMessage sendMessage = new SendMessage();
+        String text = "Добавить слово в тему/подтему ?";
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+
+        buttonName.add("Сохранить в тему");
+        buttonName.add("Сохранить в подтему");
+        buttonName.add("Создать слово без темы/подтемы");
+        sendMessage.setReplyMarkup(createInlineKeyboardForNewWord(chatId, buttonName));
+        try {
+            execute(sendMessage);
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
         dataBaseService.createNewWord(chatId);
+    }
+
+    private InlineKeyboardMarkup createInlineKeyboardForNewWord(long chatId, List<String> buttonName) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton button;
+
+
+        List<InlineKeyboardButton> list;
+        List<List<InlineKeyboardButton>> listList = new ArrayList<>();
+        int x = -10;
+        for (String s : buttonName) {
+            list = new ArrayList<>();
+            button = new InlineKeyboardButton();
+            button.setText(s);
+            button.setCallbackData(String.valueOf(x));
+            x -= 10;
+            list.add(button);
+            listList.add(list);
+        }
+        markup.setKeyboard(listList);
+        return markup;
     }
 
     /**

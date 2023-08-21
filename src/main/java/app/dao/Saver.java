@@ -29,6 +29,9 @@ public class Saver {
 
     private String idParentTheme;
 
+    private Long wordToTheme;
+    private Long wordToSubtopic;
+
     @OneToOne
     private User user;
 }

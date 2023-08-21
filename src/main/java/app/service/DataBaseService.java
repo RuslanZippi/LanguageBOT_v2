@@ -45,6 +45,8 @@ public class DataBaseService {
             saver.setThemeName("");
             saver.setIdParentTheme("");
             saver.setSubtopicName("");
+            saver.setWordToTheme(0L);
+            saver.setWordToSubtopic(0L);
             user.setSaver(saver);
             userInt.save(user);
             saverRep.save(saver);
@@ -142,6 +144,11 @@ public class DataBaseService {
         saverRep.save(setDefault(saver));
     }
 
+    public void setWordToTheme(long chatId, long themeId){
+        Saver saver = saverRep.findByUserId(chatId);
+        saver.setWordToTheme(themeId);
+        saverRep.save(saver);
+    }
     private Saver setDefault(Saver saver) {
         saver.setStatusCreateWord(false);
         saver.setStatusCreateTheme(false);

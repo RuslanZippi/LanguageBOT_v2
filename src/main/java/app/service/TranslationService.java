@@ -41,7 +41,6 @@ public class TranslationService {
             for(Word w: rusWord){
                 word.add(w.getEngTranslation());
             }
-
         }
         //long time = System.currentTimeMillis();
         List<Translation> translations = translate.translate(word, Translate.TranslateOption.sourceLanguage("en"), Translate.TranslateOption.targetLanguage("ru"));
