@@ -53,7 +53,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                     case "\uD83D\uDCC3Мои слова\uD83D\uDCC3":
                         dataBaseService.stopSaveWord(chatID);
-                        getWorldMenu(chatID);
+                        getWordMenu(chatID);
                         break;
                     case "\uD83D\uDCDAМои темы\uD83D\uDCDA":
                         dataBaseService.stopSaveWord(chatID);
@@ -69,7 +69,6 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                     case "\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
-                        //sendMessage(chatID, "Введите слово на русском");
                         createNewWord(chatID);
                         break;
                     case "\uD83D\uDDC2Вывести список тем\uD83D\uDDC2":
@@ -229,7 +228,6 @@ public class LanguageBot extends TelegramLongPollingBot {
      */
     private InlineKeyboardMarkup createInlineKeyboardTheme(long chatId, List<Theme> buttonsName) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-
         InlineKeyboardButton button;
         List<InlineKeyboardButton> buttonsThemeList = new ArrayList<>();
         int x = 1;
@@ -393,13 +391,14 @@ public class LanguageBot extends TelegramLongPollingBot {
      *
      * @param chatId id пользователя
      */
-    private void getWorldMenu(long chatId) {
+    private void getWordMenu(long chatId) {
         ArrayList<String> listOfButtonNames = new ArrayList<>();
 
 
         listOfButtonNames.add("\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA");
         listOfButtonNames.add("\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8");
         listOfButtonNames.add("\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD");
+        listOfButtonNames.add("Редактирование слов");
         listOfButtonNames.add("\uD83C\uDFE0Назад\uD83C\uDFE0");
 
         ReplyKeyboardMarkup markup = createMarkup(listOfButtonNames);
