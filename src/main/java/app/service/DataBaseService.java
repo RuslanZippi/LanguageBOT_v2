@@ -231,4 +231,15 @@ public class DataBaseService {
         saver.setIdParentTheme(String.valueOf(parentThemeId));
         saverRep.save(saver);
     }
+
+    public List<SubTopic> getSubtopicList(long id) {
+        //List<SubTopic> list = subtopicRep.findById(id).stream().toList();
+        return subtopicRep.findByUsersId(id);
+    }
+
+    public void setWordToSubtopic(long id, long parseLong) {
+        Saver saver = saverRep.findByUserId(id);
+        saver.setWordToSubtopic(parseLong);
+        saverRep.save(saver);
+    }
 }
