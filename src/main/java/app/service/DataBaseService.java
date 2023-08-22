@@ -168,7 +168,11 @@ public class DataBaseService {
         saver.setRusWord("");
         saver.setEngWord("");
         saver.setThemeName("");
+        saver.setIdParentTheme("");
         saver.setSubtopicName("");
+        saver.setWordToTheme(0L);
+        saver.setWordToSubtopic(0L);
+
         return saver;
     }
 
@@ -275,5 +279,11 @@ public class DataBaseService {
     }
     public Theme getLastCreatedTheme(long id){
         return themeRep.findTopByUsersIdOrderByIdDesc(id);
+    }
+    public long checkIdParentTheme(long chatId){
+        if(saverRep.findByUserId(chatId).getIdParentTheme().equals("")){
+            return 0;
+        }
+        else return Long.parseLong(saverRep.findByUserId(chatId).getIdParentTheme());
     }
 }
