@@ -215,7 +215,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         int x = 1;
         for (SubTopic t : buttonsName) {
-            if(buttonsSubtopicList.size()>=8){
+            if(buttonsSubtopicList.size()%8==1){
                 list.add(buttonsSubtopicList);
                 buttonsSubtopicList = new ArrayList<>();
             }
@@ -252,8 +252,13 @@ public class LanguageBot extends TelegramLongPollingBot {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         InlineKeyboardButton button;
         List<InlineKeyboardButton> buttonsThemeList = new ArrayList<>();
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
         int x = 1;
         for (Theme t : buttonsName) {
+            if(x%8==1){
+                list.add(buttonsThemeList);
+                buttonsThemeList = new ArrayList<>();
+            }
             button = new InlineKeyboardButton();
             String text = "theme" + t.getId();
             button.setText(String.valueOf(x));
@@ -269,7 +274,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         button.setCallbackData("theme-1");
         buttonChoice.add(button);
 
-        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        //List<List<InlineKeyboardButton>> list = new ArrayList<>();
         list.add(buttonsThemeList);
         list.add(buttonChoice);
         markup.setKeyboard(list);
