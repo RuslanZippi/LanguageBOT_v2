@@ -4,6 +4,7 @@ import app.dao.SubTopic;
 import app.dao.Theme;
 import app.service.DataBaseService;
 import app.service.TranslationService;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +119,10 @@ public class LanguageBot extends TelegramLongPollingBot {
                             saveNewTheme(chatID, textMessage);
                         }
                         if (dataBaseService.ifCreatedSubtopic(chatID)) {
-                            saveNewSubtopic(chatID, textMessage);
+                            if(dataBaseService.checkIdParentTheme(chatID)!=0){
+                                System.out.println(dataBaseService.checkIdParentTheme(chatID));
+                                saveNewSubtopic(chatID, textMessage);
+                            }
                         }
                         break;
                 }
@@ -207,7 +211,7 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void saveIdParentTheme(long chatID, long parentThemeId) {
         dataBaseService.saveIdParentTheme(chatID, parentThemeId);
     }
-    private InlineKeyboardMarkup createInlineKeyboardSubtopic(List<SubTopic> buttonsName){
+    private @NotNull InlineKeyboardMarkup createInlineKeyboardSubtopic(List<SubTopic> buttonsName){
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton button;
@@ -248,7 +252,7 @@ public class LanguageBot extends TelegramLongPollingBot {
      * @param buttonsName список названий тем для кнопок клавиатуры
      * @return Возвращает готовую клавиатуру
      */
-    private InlineKeyboardMarkup createInlineKeyboardTheme(long chatId, List<Theme> buttonsName) {
+    private @NotNull InlineKeyboardMarkup createInlineKeyboardTheme(long chatId, List<Theme> buttonsName) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         InlineKeyboardButton button;
         List<InlineKeyboardButton> buttonsThemeList = new ArrayList<>();
