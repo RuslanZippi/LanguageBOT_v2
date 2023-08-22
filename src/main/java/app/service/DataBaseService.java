@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,6 +138,19 @@ public class DataBaseService {
         User user = saver.getUser();
         user.getWords().add(word);
         word.setUsers(List.of(user));
+        if(saver.getWordToTheme()!=0){
+            Theme theme = themeRep.findById((long)saver.getWordToTheme());
+            theme.getWords().add(word);
+            word.setThemes(List.of(theme));
+            themeRep.save(theme);
+        }
+        if(saver.getWordToSubtopic()!=0){
+            SubTopic subTopic = subtopicRep.findById((long)saver.getWordToSubtopic());
+            subTopic.setWords(List.of(word));
+            word.setTopics(List.of(subTopic));
+            subtopicRep.save(subTopic);
+        }
+
         wordInt.save(word);
         userInt.save(user);
         saverRep.save(setDefault(saver));
@@ -175,6 +187,8 @@ public class DataBaseService {
 
     @Transactional
     public void saveTheme(long chatId, String themeName) {
+        Saver saver = saverRep.findByUserId(chatId);
+
         User user = userInt.findById(chatId);
         Theme theme = new Theme();
         theme.setName(themeName);
@@ -182,7 +196,15 @@ public class DataBaseService {
         theme.setUsers(List.of(user));
         themeRep.save(theme);
         userInt.save(user);
-        setDefault(saverRep.findByUserId(chatId));
+        if(saver.isStatusCreateWord()&&saver.isStatusCreateTheme()){
+            System.out.println("check");
+            saver.setWordToTheme(themeRep.findTopByUsersIdOrderByIdDesc(chatId).getId());
+            saver.setStatusCreateTheme(false);
+            saverRep.save(saver);
+        }
+        else{
+            saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+        }
     }
 
     @Transactional
@@ -200,7 +222,16 @@ public class DataBaseService {
         subtopicRep.save(subTopic);
         themeRep.save(theme);
         userInt.save(user);
-        saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+        if(saver.isStatusCreateWord()&&saver.isStatusCreateSubtopic()){
+            System.out.println("check");
+            saver.setWordToSubtopic(themeRep.findTopByUsersIdOrderByIdDesc(chatId).getId());
+            saver.setStatusCreateSubtopic(false);
+            saverRep.save(saver);
+        }
+        else{
+            saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+        }
+        //saverRep.save(setDefault(saverRep.findByUserId(chatId)));
 
     }
 
@@ -241,5 +272,8 @@ public class DataBaseService {
         Saver saver = saverRep.findByUserId(id);
         saver.setWordToSubtopic(parseLong);
         saverRep.save(saver);
+    }
+    public Theme getLastCreatedTheme(long id){
+        return themeRep.findTopByUsersIdOrderByIdDesc(id);
     }
 }

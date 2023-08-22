@@ -12,4 +12,5 @@ public interface SubtopicRep extends CrudRepository<SubTopic,Long> {
     long countSubtopicsByUsersId(long id);
     List<SubTopic> findByUsersId(long id);
     List<SubTopic> findByThemeId(long id);
+    SubTopic findById(long id);
 }
