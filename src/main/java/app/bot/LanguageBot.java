@@ -22,7 +22,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Component
@@ -170,11 +169,39 @@ public class LanguageBot extends TelegramLongPollingBot {
                     //sendMessage(id,"Введите слово на русском");
                 }
             }
-            if (dataBaseService.isEditingWord(id)){
-                String finalCallback = callback;
-                Word word = dataBaseService.getListWords(id).stream().filter(x-> x.getId()==Long.parseLong(finalCallback)).findFirst().get();
-                String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() +"\n" + "Описание: " + word.getDescription();
-                sendMessage(id,text);
+            if (dataBaseService.isEditingWord(id)) {
+                if (callback.startsWith("edit")) {
+                    callback = callback.split("edit")[1];
+                    if(callback.split("_").length ==2){
+                        String answerOption = callback.split("_")[1];
+                        switch (answerOption) {
+                            case "1":
+
+                                break;
+                            case "2":
+                                break;
+                            case "3":
+                                break;
+                        }
+                    }
+                    if(callback.split("_").length==3){
+                        String answerOption = callback.split("_")[1];
+                        switch (answerOption) {
+                            case "1":
+
+                                break;
+                            case "2":
+                                break;
+                            case "3":
+                                break;
+                        }
+                    }
+                } else {
+                    String finalCallback = callback;
+                    Word word = dataBaseService.getListWords(id).stream().filter(x -> x.getId() == Long.parseLong(finalCallback)).findFirst().get();
+                    String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
+                    sendMessage(id, text);
+                }
             }
         }
     }
@@ -532,14 +559,14 @@ public class LanguageBot extends TelegramLongPollingBot {
         StringBuilder builder = new StringBuilder();
 
         for (int x = 0; x < listSize; x++) {
-            builder.append((x+1)+ wordsList.get(x).getEngTranslation() + " - " + wordsList.get(x).getRusTranslation());
+            builder.append((x + 1) + wordsList.get(x).getEngTranslation() + " - " + wordsList.get(x).getRusTranslation());
             builder.append("\n");
-            if(x%8==1){
+            if (buttonsList.size() % 8 == 1) {
                 list.add(buttonsList);
                 buttonsList = new ArrayList<>();
             }
             button = new InlineKeyboardButton();
-            button.setText(String.valueOf((x+1)));
+            button.setText(String.valueOf((x + 1)));
             button.setCallbackData(String.valueOf(wordsList.get(x).getId()));
             buttonsList.add(button);
         }
