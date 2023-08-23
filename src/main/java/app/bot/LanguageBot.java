@@ -172,11 +172,11 @@ public class LanguageBot extends TelegramLongPollingBot {
             if (dataBaseService.isEditingWord(id)) {
                 if (callback.startsWith("edit")) {
                     callback = callback.split("edit")[1];
-                    if(callback.split("_").length ==2){
+                    if (callback.split("_").length == 2) {
                         String answerOption = callback.split("_")[1];
                         switch (answerOption) {
                             case "1":
-
+                                System.out.println(answerOption);
                                 break;
                             case "2":
                                 break;
@@ -184,11 +184,11 @@ public class LanguageBot extends TelegramLongPollingBot {
                                 break;
                         }
                     }
-                    if(callback.split("_").length==3){
+                    if (callback.split("_").length == 3) {
                         String answerOption = callback.split("_")[1];
                         switch (answerOption) {
                             case "1":
-
+                                System.out.println(answerOption);
                                 break;
                             case "2":
                                 break;
@@ -199,8 +199,8 @@ public class LanguageBot extends TelegramLongPollingBot {
                 } else {
                     String finalCallback = callback;
                     Word word = dataBaseService.getListWords(id).stream().filter(x -> x.getId() == Long.parseLong(finalCallback)).findFirst().get();
-                    String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
-                    sendMessage(id, text);
+                    //String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
+                    sendMessageChoice(id,word);
                 }
             }
         }
@@ -208,6 +208,40 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     private void sendQuestionThree(long id) {
         sendMessage(id, "Введите слово на русском");
+    }
+
+    private void sendMessageChoice(long chatId,Word word){
+        String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
+        try {
+            execute(SendMessage.builder()
+                    .chatId(chatId)
+                    .text(text)
+                    .replyMarkup(getNewInlineKeyBoarMarkupForEditWord(word.getId()))
+                    .build());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private InlineKeyboardMarkup getNewInlineKeyBoarMarkupForEditWord(long wordId) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton button;
+
+        List<InlineKeyboardButton> buttonList = new ArrayList<>();
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        //List.of("Изменить английский перевод", "Изменить русский перевод", "Изменить описание");
+        int x = 1;
+        for (String s : List.of("Изменить английский перевод", "Изменить русский перевод", "Изменить описание")) {
+            button = new InlineKeyboardButton();
+            button.setText(s);
+            button.setCallbackData("edit" + x + "_" + wordId);
+            buttonList.add(button);
+            list.add(buttonList);
+            buttonList = new ArrayList<>();
+            x++;
+        }
+        markup.setKeyboard(list);
+        return markup;
     }
 
     private void sendQuestionTwo(long id) {
