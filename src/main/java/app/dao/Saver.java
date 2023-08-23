@@ -1,7 +1,6 @@
 package app.dao;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +19,12 @@ public class Saver {
     private boolean statusCreateTheme;
     @Column(name = "status_subtopic")
     private boolean statusCreateSubtopic;
+    @Column(name = "editing_word")
+    private boolean editingWord;
+    @Column(name = "editing_theme")
+    private boolean editingTheme;
+    @Column(name = "editing_subtopic")
+    private  boolean editingSubtopic;
 
     private String rusWord;
     private String engWord;

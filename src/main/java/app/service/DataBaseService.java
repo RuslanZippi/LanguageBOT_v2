@@ -36,16 +36,7 @@ public class DataBaseService {
             saver = new Saver();
             saver.setUser(user);
             saver.setId(user.getId() + 1);
-            saver.setStatusCreateWord(false);
-            saver.setStatusCreateTheme(false);
-            saver.setStatusCreateSubtopic(false);
-            saver.setRusWord("");
-            saver.setEngWord("");
-            saver.setThemeName("");
-            saver.setIdParentTheme("");
-            saver.setSubtopicName("");
-            saver.setWordToTheme(0L);
-            saver.setWordToSubtopic(0L);
+            setDefault(saver);
             user.setSaver(saver);
             userInt.save(user);
             saverRep.save(saver);
@@ -172,6 +163,9 @@ public class DataBaseService {
         saver.setSubtopicName("");
         saver.setWordToTheme(0L);
         saver.setWordToSubtopic(0L);
+        saver.setEditingWord(false);
+        saver.setEditingTheme(false);
+        saver.setEditingSubtopic(false);
 
         return saver;
     }
@@ -285,5 +279,38 @@ public class DataBaseService {
             return 0;
         }
         else return Long.parseLong(saverRep.findByUserId(chatId).getIdParentTheme());
+    }
+
+    public void startEditingWord(long chatId){
+        Saver saver = saverRep.findByUserId(chatId);
+        saver.setEditingWord(true);
+        saverRep.save(saver);
+    }
+    public boolean isEditingWord(long chatId){
+        return saverRep.findByUserId(chatId).isEditingWord();
+    }
+    public void editRusWord(long chatId, String newRusTranslation, String wordId){
+        Word word = wordInt.findById(Long.parseLong(wordId));
+        word.setRusTranslation(newRusTranslation);
+        wordInt.save(word);
+        saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+    }
+    public void editEngWord(long chatId,String newEngTranslation, String wordId){
+        Word word = wordInt.findById(Long.parseLong(wordId));
+        word.setEngTranslation(newEngTranslation);
+        wordInt.save(word);
+        saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+    }
+    public void editDescriptionWord(long chatId,String newDescription, String wordId){
+        Word word = wordInt.findById(Long.parseLong(wordId));
+        word.setDescription(newDescription);
+        wordInt.save(word);
+        saverRep.save(setDefault(saverRep.findByUserId(chatId)));
+    }
+    public  void startEditingTheme(long chatID){
+
+    }
+    public void startEditingSubtopic(long chatId){
+
     }
 }

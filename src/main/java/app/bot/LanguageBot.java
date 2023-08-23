@@ -2,6 +2,7 @@ package app.bot;
 
 import app.dao.SubTopic;
 import app.dao.Theme;
+import app.dao.Word;
 import app.service.DataBaseService;
 import app.service.TranslationService;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +47,7 @@ public class LanguageBot extends TelegramLongPollingBot {
             long chatID = update.getMessage().getChatId();
             dataBaseService.checkUser(chatID);
             loggerFactory.atInfo().log(String.valueOf(chatID));
+            //System.out.println(update.getMessage().getText());
             if (chatID == 759230168 || chatID == 889552975) {
                 String textMessage = update.getMessage().getText();
                 switch (textMessage) {
@@ -68,6 +70,11 @@ public class LanguageBot extends TelegramLongPollingBot {
                         dataBaseService.stopSaveWord(chatID);
                         getEngList(chatID);
                         break;
+                    case "\uD83D\uDD27Редактирование слов\uD83D\uDD27":
+                        sendMessage(chatID, "Какое слово отредактировать?");
+                        sendWordList(chatID);
+                        dataBaseService.startEditingWord(chatID);
+                        break;
                     case "\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
                         createNewWord(chatID);
@@ -83,7 +90,6 @@ public class LanguageBot extends TelegramLongPollingBot {
                     case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
                         createNewTheme(chatID);
-                        //sendMessage(chatID, "Введите название темы");
                         break;
                     case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
@@ -94,20 +100,14 @@ public class LanguageBot extends TelegramLongPollingBot {
                         startMenu(chatID);
                         break;
                     default:
-                        boolean isCreateWord  = dataBaseService.isCreatedWord(chatID);
-                        boolean isCreateTheme = dataBaseService.ifCreatedTheme(chatID);
-                        boolean isCreateSubtopic = dataBaseService.ifCreatedSubtopic(chatID);
-
                         if (dataBaseService.isCreatedWord(chatID)) {
-                            if(dataBaseService.ifCreatedTheme(chatID)){
+                            if (dataBaseService.ifCreatedTheme(chatID)) {
                                 saveNewTheme(chatID, textMessage);
-                                sendMessage(chatID,"Введите слово на руссоком");
-                            }
-                            else if(dataBaseService.ifCreatedSubtopic(chatID)){
-                                saveNewSubtopic(chatID,textMessage);
-                                sendMessage(chatID,"Введите слово на руссоком");
-                            }
-                            else{
+                                sendMessage(chatID, "Введите слово на руссоком");
+                            } else if (dataBaseService.ifCreatedSubtopic(chatID)) {
+                                saveNewSubtopic(chatID, textMessage);
+                                sendMessage(chatID, "Введите слово на руссоком");
+                            } else {
                                 if (dataBaseService.ifExitsRus(chatID)) {
                                     patternCheck(chatID, textMessage, "rus");
                                 } else if (dataBaseService.ifExitsEng(chatID)) {
@@ -119,7 +119,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                             saveNewTheme(chatID, textMessage);
                         }
                         if (dataBaseService.ifCreatedSubtopic(chatID)) {
-                            if(dataBaseService.checkIdParentTheme(chatID)!=0){
+                            if (dataBaseService.checkIdParentTheme(chatID) != 0) {
                                 System.out.println(dataBaseService.checkIdParentTheme(chatID));
                                 saveNewSubtopic(chatID, textMessage);
                             }
@@ -149,36 +149,38 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                 }
 
-                if(callback.startsWith("theme")){
+                if (callback.startsWith("theme")) {
                     System.out.println(callback);
                     callback = callback.split("theme")[1];
-                    if(!callback.equals("-1")){
-                        dataBaseService.setWordToTheme(id,Long.parseLong(callback));
-                    }
-                    else{
+                    if (!callback.equals("-1")) {
+                        dataBaseService.setWordToTheme(id, Long.parseLong(callback));
+                    } else {
                         createNewTheme(id);
                         System.out.println(dataBaseService.getLastCreatedTheme(id).getId());
                     }
-                    //sendMessage(id,"Введите слово на русском");
                 }
-                //Добавить обработку запроса, в котором выбрано создать новую подтему
-                if(callback.startsWith("subtopic")){
+                if (callback.startsWith("subtopic")) {
 
                     callback = callback.split("subtopic")[1];
-                    if(!callback.equals("-1")){
-                        dataBaseService.setWordToSubtopic(id,Long.parseLong(callback));
-                    }
-                    else {
+                    if (!callback.equals("-1")) {
+                        dataBaseService.setWordToSubtopic(id, Long.parseLong(callback));
+                    } else {
                         createNewSubtopic(id);
                     }
                     //sendMessage(id,"Введите слово на русском");
                 }
             }
+            if (dataBaseService.isEditingWord(id)){
+                String finalCallback = callback;
+                Word word = dataBaseService.getListWords(id).stream().filter(x-> x.getId()==Long.parseLong(finalCallback)).findFirst().get();
+                String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() +"\n" + "Описание: " + word.getDescription();
+                sendMessage(id,text);
+            }
         }
     }
 
     private void sendQuestionThree(long id) {
-        sendMessage(id,"Введите слово на русском");
+        sendMessage(id, "Введите слово на русском");
     }
 
     private void sendQuestionTwo(long id) {
@@ -211,7 +213,8 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void saveIdParentTheme(long chatID, long parentThemeId) {
         dataBaseService.saveIdParentTheme(chatID, parentThemeId);
     }
-    private @NotNull InlineKeyboardMarkup createInlineKeyboardSubtopic(List<SubTopic> buttonsName){
+
+    private @NotNull InlineKeyboardMarkup createInlineKeyboardSubtopic(List<SubTopic> buttonsName) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton button;
@@ -219,7 +222,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         int x = 1;
         for (SubTopic t : buttonsName) {
-            if(buttonsSubtopicList.size()%8==1){
+            if (buttonsSubtopicList.size() % 8 == 1) {
                 list.add(buttonsSubtopicList);
                 buttonsSubtopicList = new ArrayList<>();
             }
@@ -259,7 +262,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         int x = 1;
         for (Theme t : buttonsName) {
-            if(x%8==1){
+            if (x % 8 == 1) {
                 list.add(buttonsThemeList);
                 buttonsThemeList = new ArrayList<>();
             }
@@ -430,7 +433,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         listOfButtonNames.add("\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA");
         listOfButtonNames.add("\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8");
         listOfButtonNames.add("\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD");
-        listOfButtonNames.add("Редактирование слов");
+        listOfButtonNames.add("\uD83D\uDD27Редактирование слов\uD83D\uDD27");
         listOfButtonNames.add("\uD83C\uDFE0Назад\uD83C\uDFE0");
 
         ReplyKeyboardMarkup markup = createMarkup(listOfButtonNames);
@@ -514,6 +517,42 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void getRusList(long chatID) {
         List<String> wordList = dataBaseService.getRusWordList(chatID);
         sendWordList(chatID, wordList);
+    }
+
+    private void sendWordList(long chatId) {
+
+        List<Word> wordsList = dataBaseService.getListWords(chatId);
+        int listSize = wordsList.size();
+        SendMessage message = new SendMessage();
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton button;
+        List<InlineKeyboardButton> buttonsList = new ArrayList<>();
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+
+        for (int x = 0; x < listSize; x++) {
+            builder.append((x+1)+ wordsList.get(x).getEngTranslation() + " - " + wordsList.get(x).getRusTranslation());
+            builder.append("\n");
+            if(x%8==1){
+                list.add(buttonsList);
+                buttonsList = new ArrayList<>();
+            }
+            button = new InlineKeyboardButton();
+            button.setText(String.valueOf((x+1)));
+            button.setCallbackData(String.valueOf(wordsList.get(x).getId()));
+            buttonsList.add(button);
+        }
+        list.add(buttonsList);
+        markup.setKeyboard(list);
+        message.setText(builder.toString());
+        message.setReplyMarkup(markup);
+        message.setChatId(chatId);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
