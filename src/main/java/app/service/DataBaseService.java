@@ -146,8 +146,12 @@ public class DataBaseService {
         }
 
         EditWord editWord = new EditWord();
-        editWord.setWord(word);
+        EditWordKey editWordKey = new EditWordKey();
+        editWordKey.setUserId(user.getId());
+        editWordKey.setWordId(word.getId());
+        editWord.setId(editWordKey);
         editWord.setUser(user);
+        editWord.setWord(word);
         editWordRep.save(editWord);
         wordInt.save(word);
         userInt.save(user);
@@ -324,8 +328,10 @@ public class DataBaseService {
 
     public void setEditWordDefault(long chatId, long wordId){
         EditWord editWord = new EditWord();
-        editWord.setUser(userInt.findById(chatId));
-        editWord.setWord(wordInt.findById(wordId));
+        EditWordKey editWordKey = new EditWordKey();
+        editWordKey.setUserId(chatId);
+        editWordKey.setWordId(wordId);
+        editWord.setId(editWordKey);
         editWord.setEditEng(false);
         editWord.setEditRus(false);
         editWord.setEditDescription(false);
