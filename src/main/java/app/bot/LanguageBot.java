@@ -123,6 +123,9 @@ public class LanguageBot extends TelegramLongPollingBot {
                                 saveNewSubtopic(chatID, textMessage);
                             }
                         }
+                        if(dataBaseService.isEditingWord(chatID)){
+                            editWord(chatID,textMessage);
+                        }
                         break;
                 }
             }
@@ -209,6 +212,18 @@ public class LanguageBot extends TelegramLongPollingBot {
                     sendMessageChoice(id,word);
                 }
             }
+        }
+    }
+
+    private void editWord(long chatID, String textMessage) {
+        if(dataBaseService.getEditWordStatus(chatID,"eng")){
+            //dataBaseService.editEngWord();
+        }
+        if(dataBaseService.getEditWordStatus(chatID,"rus")){
+
+        }
+        if(dataBaseService.getEditWordStatus(chatID,"description")){
+
         }
     }
 

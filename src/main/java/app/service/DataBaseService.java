@@ -337,20 +337,14 @@ public class DataBaseService {
         editWord.setEditDescription(false);
         editWordRep.save(editWord);
     }
-    public boolean getEditWordStatus(long chatId,long wordId, String typeEdit){
-        boolean status = false;
-        switch (typeEdit){
-            case "eng":
-                //status = editWordRep.findById(chatId,wordId).isEditEng();
-                break;
-            case "rus":
-                //status = editWordRep.findById(chatId,wordId).isEditRus();
-                break;
-            case "description":
-                //status = editWordRep.findById(chatId,wordId).isEditDescription();
-                break;
-
-        }
-        return status;
+    public boolean getEditWordStatus(long chatId,String typeEdit){
+        User user = userInt.findById(chatId);
+        Word word = editWordRep.findByUser(user).stream().findFirst().get().getWord();
+        return switch (typeEdit) {
+            case "eng" -> editWordRep.findByUser(user).stream().findFirst().get().isEditEng();
+            case "rus" -> editWordRep.findByUser(user).stream().findFirst().get().isEditRus();
+            case "description" -> editWordRep.findByUser(user).stream().findFirst().get().isEditDescription();
+            default -> false;
+        };
     }
 }
