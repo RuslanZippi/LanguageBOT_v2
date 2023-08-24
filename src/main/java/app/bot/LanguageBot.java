@@ -173,18 +173,24 @@ public class LanguageBot extends TelegramLongPollingBot {
                 if (callback.startsWith("edit")) {
                     callback = callback.split("edit")[1];
                     if (callback.split("_").length == 2) {
-                        String answerOption = callback.split("_")[1];
+                        System.out.println("length = 2");
+                        System.out.println(callback);
+                        String answerOption = callback.split("_")[0];
                         switch (answerOption) {
                             case "1":
-                                System.out.println(answerOption);
+                                sendMessage(id,"Введите новый перевод на английском");
                                 break;
                             case "2":
+                                sendMessage(id, "Введите перевод на русском");
                                 break;
                             case "3":
+                                sendMessage(id, "Введите новое описание");
                                 break;
                         }
                     }
                     if (callback.split("_").length == 3) {
+                        System.out.println("length = 3");
+                        System.out.println(callback);
                         String answerOption = callback.split("_")[1];
                         switch (answerOption) {
                             case "1":
@@ -229,7 +235,6 @@ public class LanguageBot extends TelegramLongPollingBot {
 
         List<InlineKeyboardButton> buttonList = new ArrayList<>();
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
-        //List.of("Изменить английский перевод", "Изменить русский перевод", "Изменить описание");
         int x = 1;
         for (String s : List.of("Изменить английский перевод", "Изменить русский перевод", "Изменить описание")) {
             button = new InlineKeyboardButton();
@@ -593,9 +598,9 @@ public class LanguageBot extends TelegramLongPollingBot {
         StringBuilder builder = new StringBuilder();
 
         for (int x = 0; x < listSize; x++) {
-            builder.append((x + 1) + wordsList.get(x).getEngTranslation() + " - " + wordsList.get(x).getRusTranslation());
+            builder.append((x + 1) + ") " + wordsList.get(x).getEngTranslation() + " - " + wordsList.get(x).getRusTranslation());
             builder.append("\n");
-            if (buttonsList.size() % 8 == 1) {
+            if (x % 8 == 1 && x!=1) {
                 list.add(buttonsList);
                 buttonsList = new ArrayList<>();
             }

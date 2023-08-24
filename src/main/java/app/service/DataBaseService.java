@@ -27,6 +27,9 @@ public class DataBaseService {
     @Autowired
     private SaverRep saverRep;
 
+    @Autowired
+    private EditWordRep editWordRep;
+
     public void checkUser(long chatID) {
         User user;
         Saver saver;
@@ -142,6 +145,10 @@ public class DataBaseService {
             subtopicRep.save(subTopic);
         }
 
+        EditWord editWord = new EditWord();
+        editWord.setWord(word);
+        editWord.setUser(user);
+        editWordRep.save(editWord);
         wordInt.save(word);
         userInt.save(user);
         saverRep.save(setDefault(saver));
@@ -284,6 +291,7 @@ public class DataBaseService {
     public void startEditingWord(long chatId){
         Saver saver = saverRep.findByUserId(chatId);
         saver.setEditingWord(true);
+
         saverRep.save(saver);
     }
     public boolean isEditingWord(long chatId){
@@ -312,5 +320,31 @@ public class DataBaseService {
     }
     public void startEditingSubtopic(long chatId){
 
+    }
+
+    public void setEditWordDefault(long chatId, long wordId){
+        EditWord editWord = new EditWord();
+        editWord.setUser(userInt.findById(chatId));
+        editWord.setWord(wordInt.findById(wordId));
+        editWord.setEditEng(false);
+        editWord.setEditRus(false);
+        editWord.setEditDescription(false);
+        editWordRep.save(editWord);
+    }
+    public boolean getEditWordStatus(long chatId,long wordId, String typeEdit){
+        boolean status = false;
+        switch (typeEdit){
+            case "eng":
+                //status = editWordRep.findById(chatId,wordId).isEditEng();
+                break;
+            case "rus":
+                //status = editWordRep.findById(chatId,wordId).isEditRus();
+                break;
+            case "description":
+                //status = editWordRep.findById(chatId,wordId).isEditDescription();
+                break;
+
+        }
+        return status;
     }
 }

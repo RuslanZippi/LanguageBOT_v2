@@ -44,4 +44,8 @@ public class Word {
             inverseJoinColumns = @JoinColumn(name = "subtopic_id"))
     private List<SubTopic> topics;
 
+    @OneToMany(mappedBy = "word")
+    private List<EditWord> editWords;
+
+
 }

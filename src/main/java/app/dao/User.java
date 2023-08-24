@@ -38,4 +38,7 @@ public class User {
     @OneToOne(mappedBy = "user")
     //@Column(name = "saver_id")
     private Saver saver;
+
+    @OneToMany(mappedBy = "user")
+    private List<EditWord> editWords;
 }
