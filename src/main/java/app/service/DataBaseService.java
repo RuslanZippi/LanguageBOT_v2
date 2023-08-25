@@ -33,17 +33,23 @@ public class DataBaseService {
     public void checkUser(long chatID) {
         User user;
         Saver saver;
-        if (userInt.findById(chatID) == null) {
+        //setDefault(saver);
+        //if (userInt.findById(chatID) == null) {
             user = new User();
             user.setId(chatID);
             saver = new Saver();
             saver.setUser(user);
             saver.setId(user.getId() + 1);
-            setDefault(saver);
+            //setDefault(saver);
             user.setSaver(saver);
             userInt.save(user);
-            saverRep.save(saver);
-        }
+            //saverRep.save(saver);
+        //}
+        //else {
+           // saver = saverRep.findByUserId(chatID);
+        //}
+        setDefault(saver);
+        saverRep.save(saver);
     }
 
     public long getCountWord(long chatID) {

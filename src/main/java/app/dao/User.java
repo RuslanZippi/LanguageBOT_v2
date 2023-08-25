@@ -36,7 +36,6 @@ public class User {
     private List<SubTopic> topics;
 
     @OneToOne(mappedBy = "user")
-    //@Column(name = "saver_id")
     private Saver saver;
 
     @OneToMany(mappedBy = "user")
