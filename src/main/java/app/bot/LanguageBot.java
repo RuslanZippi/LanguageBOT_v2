@@ -1,4 +1,7 @@
 package app.bot;
+/*
+нужно исправить баг с удалением связей у пользователя
+ */
 
 import app.dao.SubTopic;
 import app.dao.Theme;
