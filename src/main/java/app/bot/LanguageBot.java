@@ -123,9 +123,10 @@ public class LanguageBot extends TelegramLongPollingBot {
                                 saveNewSubtopic(chatID, textMessage);
                             }
                         }
-                        if(dataBaseService.isEditingWord(chatID)){
-                            editWord(chatID,textMessage);
+                        if (dataBaseService.isEditingWord(chatID)) {
+                            editWord(chatID, textMessage);
                         }
+
                         break;
                 }
             }
@@ -176,18 +177,22 @@ public class LanguageBot extends TelegramLongPollingBot {
                 if (callback.startsWith("edit")) {
                     callback = callback.split("edit")[1];
                     if (callback.split("_").length == 2) {
-                        System.out.println("length = 2");
-                        System.out.println(callback);
+                        //System.out.println("length = 2");
+                        //System.out.println(callback);
                         String answerOption = callback.split("_")[0];
+                        System.out.println(answerOption);
                         switch (answerOption) {
                             case "1":
-                                sendMessage(id,"Введите новый перевод на английском");
+                                sendMessage(id, "Введите новый перевод на английском");
+                                dataBaseService.setEditWordEng(id, Long.parseLong(callback.split("_")[1]));
                                 break;
                             case "2":
-                                sendMessage(id, "Введите перевод на русском");
+                                sendMessage(id, "Введите новый перевод на русском");
+                                dataBaseService.setEditWordRus(id, Long.parseLong(callback.split("_")[1]));
                                 break;
                             case "3":
                                 sendMessage(id, "Введите новое описание");
+                                dataBaseService.setEditWordDescription(id, Long.parseLong(callback.split("_")[1]));
                                 break;
                         }
                     }
@@ -209,21 +214,40 @@ public class LanguageBot extends TelegramLongPollingBot {
                     String finalCallback = callback;
                     Word word = dataBaseService.getListWords(id).stream().filter(x -> x.getId() == Long.parseLong(finalCallback)).findFirst().get();
                     //String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
-                    sendMessageChoice(id,word);
+                    sendMessageChoice(id, word);
                 }
             }
         }
     }
 
     private void editWord(long chatID, String textMessage) {
-        if(dataBaseService.getEditWordStatus(chatID,"eng")){
-            //dataBaseService.editEngWord();
-        }
-        if(dataBaseService.getEditWordStatus(chatID,"rus")){
+        if (dataBaseService.getEditWordStatus(chatID, "eng")) {
+            if (Pattern.matches("[a-zA-Z]*", textMessage)) {
+                dataBaseService.editEngWord(chatID, textMessage);
+                //System.out.println("editRus");
+                sendMessage(chatID, "Перевод изменен");
+            } else {
+                sendMessage(chatID, "неверный ввод");
+            }
 
         }
-        if(dataBaseService.getEditWordStatus(chatID,"description")){
-
+        if (dataBaseService.getEditWordStatus(chatID, "rus")) {
+            if (Pattern.matches("[а-яА-ЯёЁ]*", textMessage)) {
+                dataBaseService.editRusWord(chatID, textMessage);
+                sendMessage(chatID, "Перевод изменен");
+            } else {
+                sendMessage(chatID, "неверный ввод");
+            }
+        }
+        if (dataBaseService.getEditWordStatus(chatID, "description")) {
+            if (dataBaseService.getEditWordStatus(chatID, "description")) {
+                if (Pattern.matches("[а-яА-ЯёЁ]*", textMessage)) {
+                    dataBaseService.editDescriptionWord(chatID, textMessage);
+                    sendMessage(chatID, "Описание изменено");
+                } else {
+                    sendMessage(chatID, "неверный ввод");
+                }
+            }
         }
     }
 
@@ -231,7 +255,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         sendMessage(id, "Введите слово на русском");
     }
 
-    private void sendMessageChoice(long chatId,Word word){
+    private void sendMessageChoice(long chatId, Word word) {
         String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
         try {
             execute(SendMessage.builder()
@@ -615,7 +639,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         for (int x = 0; x < listSize; x++) {
             builder.append((x + 1) + ") " + wordsList.get(x).getEngTranslation() + " - " + wordsList.get(x).getRusTranslation());
             builder.append("\n");
-            if (x % 8 == 1 && x!=1) {
+            if (x % 8 == 1 && x != 1) {
                 list.add(buttonsList);
                 buttonsList = new ArrayList<>();
             }

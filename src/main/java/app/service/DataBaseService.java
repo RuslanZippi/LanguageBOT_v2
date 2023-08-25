@@ -145,14 +145,7 @@ public class DataBaseService {
             subtopicRep.save(subTopic);
         }
 
-        EditWord editWord = new EditWord();
-        EditWordKey editWordKey = new EditWordKey();
-        editWordKey.setUserId(user.getId());
-        editWordKey.setWordId(word.getId());
-        editWord.setId(editWordKey);
-        editWord.setUser(user);
-        editWord.setWord(word);
-        editWordRep.save(editWord);
+
         wordInt.save(word);
         userInt.save(user);
         saverRep.save(setDefault(saver));
@@ -301,21 +294,29 @@ public class DataBaseService {
     public boolean isEditingWord(long chatId){
         return saverRep.findByUserId(chatId).isEditingWord();
     }
-    public void editRusWord(long chatId, String newRusTranslation, String wordId){
-        Word word = wordInt.findById(Long.parseLong(wordId));
+    public void editRusWord(long chatId, String newRusTranslation){
+
+        Word word = editWordRep.findByUser(userInt.findById(chatId)).stream().findFirst().get().getWord();
         word.setRusTranslation(newRusTranslation);
+
+        editWordRep.delete(editWordRep.findByUser(userInt.findById(chatId)).stream().findFirst().get());
         wordInt.save(word);
         saverRep.save(setDefault(saverRep.findByUserId(chatId)));
     }
-    public void editEngWord(long chatId,String newEngTranslation, String wordId){
-        Word word = wordInt.findById(Long.parseLong(wordId));
+    public void editEngWord(long chatId,String newEngTranslation){
+
+        Word word = editWordRep.findByUser(userInt.findById(chatId)).stream().findFirst().get().getWord();
         word.setEngTranslation(newEngTranslation);
+        editWordRep.delete(editWordRep.findByUser(userInt.findById(chatId)).stream().findFirst().get());
+
         wordInt.save(word);
         saverRep.save(setDefault(saverRep.findByUserId(chatId)));
     }
-    public void editDescriptionWord(long chatId,String newDescription, String wordId){
-        Word word = wordInt.findById(Long.parseLong(wordId));
+    public void editDescriptionWord(long chatId,String newDescription){
+        Word word = editWordRep.findByUser(userInt.findById(chatId)).stream().findFirst().get().getWord();
         word.setDescription(newDescription);
+        editWordRep.delete(editWordRep.findByUser(userInt.findById(chatId)).stream().findFirst().get());
+
         wordInt.save(word);
         saverRep.save(setDefault(saverRep.findByUserId(chatId)));
     }
@@ -335,6 +336,48 @@ public class DataBaseService {
         editWord.setEditEng(false);
         editWord.setEditRus(false);
         editWord.setEditDescription(false);
+        editWordRep.save(editWord);
+    }
+    public void setEditWordRus(long userId, long wordId){
+        EditWord editWord = new EditWord();
+        EditWordKey editWordKey = new EditWordKey();
+
+        editWordKey.setUserId(userId);
+        editWordKey.setWordId(wordId);
+
+        editWord.setId(editWordKey);
+        editWord.setUser(userInt.findById(userId));
+        editWord.setWord(wordInt.findById(wordId));
+
+        editWord.setEditRus(true);
+        editWordRep.save(editWord);
+    }
+    public void setEditWordEng(long userId, long wordId){
+        EditWord editWord = new EditWord();
+        EditWordKey editWordKey = new EditWordKey();
+
+        editWordKey.setUserId(userId);
+        editWordKey.setWordId(wordId);
+
+        editWord.setId(editWordKey);
+        editWord.setUser(userInt.findById(userId));
+        editWord.setWord(wordInt.findById(wordId));
+
+        editWord.setEditEng(true);
+        editWordRep.save(editWord);
+    }
+    public void setEditWordDescription(long userId, long wordId){
+        EditWord editWord = new EditWord();
+        EditWordKey editWordKey = new EditWordKey();
+
+        editWordKey.setUserId(userId);
+        editWordKey.setWordId(wordId);
+
+        editWord.setId(editWordKey);
+        editWord.setUser(userInt.findById(userId));
+        editWord.setWord(wordInt.findById(wordId));
+
+        editWord.setEditDescription(true);
         editWordRep.save(editWord);
     }
     public boolean getEditWordStatus(long chatId,String typeEdit){
