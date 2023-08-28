@@ -24,9 +24,9 @@ public class Theme {
     @ManyToMany(mappedBy = "themes")
     private List<User> users;
 
-    @OneToMany(mappedBy = "theme")
+    @OneToMany(mappedBy = "theme",fetch = FetchType.EAGER)
     private List<SubTopic> subTopics;
 
-    @ManyToMany(mappedBy = "themes")
+    @ManyToMany(mappedBy = "themes", fetch = FetchType.EAGER)
     private List<Word> words;
 }

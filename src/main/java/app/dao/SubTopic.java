@@ -26,6 +26,6 @@ public class SubTopic {
     @JoinColumn(name = "theme")
     private Theme theme;
 
-    @ManyToMany(mappedBy = "topics")
+    @ManyToMany(mappedBy = "topics", fetch = FetchType.EAGER)
     private List<Word> words;
 }

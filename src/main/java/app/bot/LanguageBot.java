@@ -84,22 +84,28 @@ public class LanguageBot extends TelegramLongPollingBot {
                         dataBaseService.stopSaveWord(chatID);
                         getThemeList(chatID);
                         break;
-                    case "\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1":
-                        dataBaseService.stopSaveWord(chatID);
-                        getSubtopicList(chatID);
-                        break;
+//                    case "\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1":
+//                        dataBaseService.stopSaveWord(chatID);
+//                        getSubtopicList(chatID);
+//                        break;
                     case "\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD":
                         dataBaseService.stopSaveWord(chatID);
                         createNewTheme(chatID);
                         break;
-                    case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
-                        dataBaseService.stopSaveWord(chatID);
-                        createNewSubtopic(chatID);
-                        break;
+//                    case "\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD":
+//                        dataBaseService.stopSaveWord(chatID);
+//                        createNewSubtopic(chatID);
+//                        break;
                     case "\uD83C\uDFE0Назад\uD83C\uDFE0":
                         dataBaseService.stopSaveWord(chatID);
                         startMenu(chatID);
                         break;
+                    case "\uD83D\uDDC2Отобразить слова по темам\uD83D\uDDC2":
+                        dataBaseService.stopSaveWord(chatID);
+                        getListWordToTheme(chatID);
+                        break;
+//                    case "\uD83D\uDCC1Отобразить слова по подтемам\uD83D\uDCC1":
+//                        break;
                     default:
                         if (dataBaseService.isCreatedWord(chatID)) {
                             System.out.println("creating");
@@ -131,7 +137,6 @@ public class LanguageBot extends TelegramLongPollingBot {
                             System.out.println("editing");
                             editWord(chatID, textMessage);
                         }
-
                         break;
                 }
             }
@@ -152,13 +157,13 @@ public class LanguageBot extends TelegramLongPollingBot {
                     case "-20":
                         sendQuestionTwo(id);
                         break;
-                    case "-30":
-                        sendQuestionThree(id);
-                        break;
+//                    case "-30":
+//                        sendQuestionThree(id);
+//                        break;
                 }
 
                 if (callback.startsWith("theme")) {
-                    System.out.println("CallBack:" +callback);
+                    System.out.println("CallBack:" + callback);
                     callback = callback.split("theme")[1];
                     if (!callback.equals("-1")) {
                         dataBaseService.setWordToTheme(id, Long.parseLong(callback));
@@ -168,16 +173,16 @@ public class LanguageBot extends TelegramLongPollingBot {
                         System.out.println(dataBaseService.getLastCreatedTheme(id).getId());
                     }
                 }
-                if (callback.startsWith("subtopic")) {
-
-                    callback = callback.split("subtopic")[1];
-                    if (!callback.equals("-1")) {
-                        dataBaseService.setWordToSubtopic(id, Long.parseLong(callback));
-                    } else {
-                        createNewSubtopic(id);
-                    }
-                    //sendMessage(id,"Введите слово на русском");
-                }
+//                if (callback.startsWith("subtopic")) {
+//
+//                    callback = callback.split("subtopic")[1];
+//                    if (!callback.equals("-1")) {
+//                        dataBaseService.setWordToSubtopic(id, Long.parseLong(callback));
+//                    } else {
+//                        createNewSubtopic(id);
+//                    }
+//                    //sendMessage(id,"Введите слово на русском");
+//                }
             }
             if (dataBaseService.isEditingWord(id)) {
                 if (callback.startsWith("edit")) {
@@ -224,6 +229,25 @@ public class LanguageBot extends TelegramLongPollingBot {
         }
     }
 
+    private void getListWordToTheme(long chatID) {
+        List<Theme> themeList = dataBaseService.getThemeList(chatID);
+        StringBuilder builder = new StringBuilder();
+        builder.append("Ваши темы: \n");
+        int x = 1;
+        for (Theme t : themeList) {
+            builder.append(x + ") " + t.getName() + "(слов - " + getAllCountWord(t) + " )");
+            x++;
+        }
+        sendMessage(chatID, builder.toString());
+    }
+
+    private int getAllCountWord(Theme theme) {
+        int countWord = 0;
+
+        countWord += theme.getWords().size();
+        return countWord;
+    }
+
     private void editWord(long chatID, String textMessage) {
         if (dataBaseService.getEditWordStatus(chatID, "eng")) {
             if (Pattern.matches("[a-zA-Z]*", textMessage)) {
@@ -234,16 +258,14 @@ public class LanguageBot extends TelegramLongPollingBot {
                 sendMessage(chatID, "неверный ввод");
             }
 
-        }
-        else if (dataBaseService.getEditWordStatus(chatID, "rus")) {
+        } else if (dataBaseService.getEditWordStatus(chatID, "rus")) {
             if (Pattern.matches("[а-яА-ЯёЁ]*", textMessage)) {
                 dataBaseService.editRusWord(chatID, textMessage);
                 sendMessage(chatID, "Перевод изменен");
             } else {
                 sendMessage(chatID, "неверный ввод");
             }
-        }
-        else if (dataBaseService.getEditWordStatus(chatID, "description")) {
+        } else if (dataBaseService.getEditWordStatus(chatID, "description")) {
             if (dataBaseService.getEditWordStatus(chatID, "description")) {
                 if (Pattern.matches("[а-яА-ЯёЁ]*", textMessage)) {
                     dataBaseService.editDescriptionWord(chatID, textMessage);
@@ -262,11 +284,7 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void sendMessageChoice(long chatId, Word word) {
         String text = "Выбранное слов: \n" + word.getEngTranslation() + " -  " + word.getRusTranslation() + "\n" + "Описание: " + word.getDescription();
         try {
-            execute(SendMessage.builder()
-                    .chatId(chatId)
-                    .text(text)
-                    .replyMarkup(getNewInlineKeyBoarMarkupForEditWord(word.getId()))
-                    .build());
+            execute(SendMessage.builder().chatId(chatId).text(text).replyMarkup(getNewInlineKeyBoarMarkupForEditWord(word.getId())).build());
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -541,6 +559,8 @@ public class LanguageBot extends TelegramLongPollingBot {
 
         listOfButtonNames.add("\uD83C\uDDF7\uD83C\uDDFAВывести список слов на русском\uD83C\uDDF7\uD83C\uDDFA");
         listOfButtonNames.add("\uD83C\uDDFA\uD83C\uDDF8Вывести список слов на английском\uD83C\uDDFA\uD83C\uDDF8");
+        listOfButtonNames.add("\uD83D\uDDC2Отобразить слова по темам\uD83D\uDDC2");
+        //listOfButtonNames.add("\uD83D\uDCC1Отобразить слова по подтемам\uD83D\uDCC1");
         listOfButtonNames.add("\uD83D\uDCDDДобавить новое слово\uD83D\uDCDD");
         listOfButtonNames.add("\uD83D\uDD27Редактирование слов\uD83D\uDD27");
         listOfButtonNames.add("\uD83C\uDFE0Назад\uD83C\uDFE0");
@@ -573,11 +593,21 @@ public class LanguageBot extends TelegramLongPollingBot {
 
         List<KeyboardRow> buttons = new ArrayList<>();
 
+
         KeyboardRow wordMenu;
+        KeyboardRow wordMenuTwoColumn = new KeyboardRow();
         for (String s : list) {
-            wordMenu = new KeyboardRow();
-            wordMenu.add(s);
-            buttons.add(wordMenu);
+            if (s.equals("\uD83D\uDDC2Отобразить слова по темам\uD83D\uDDC2") || s.equals("\uD83D\uDCC1Отобразить слова по подтемам\uD83D\uDCC1")) {
+                wordMenuTwoColumn.add(s);
+            } else {
+                if (wordMenuTwoColumn.size() > 0) {
+                    buttons.add(wordMenuTwoColumn);
+                    wordMenuTwoColumn = new KeyboardRow();
+                }
+                wordMenu = new KeyboardRow();
+                wordMenu.add(s);
+                buttons.add(wordMenu);
+            }
         }
         markup.setKeyboard(buttons);
         return markup;
@@ -593,9 +623,9 @@ public class LanguageBot extends TelegramLongPollingBot {
 
 
         listOfButtonNames.add("\uD83D\uDDC2Вывести список тем\uD83D\uDDC2");
-        listOfButtonNames.add("\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1");
+        //listOfButtonNames.add("\uD83D\uDCC1Вывести список подтем\uD83D\uDCC1");
         listOfButtonNames.add("\uD83D\uDCDDСоздать новую тему\uD83D\uDCDD");
-        listOfButtonNames.add("\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD");
+        //listOfButtonNames.add("\uD83D\uDCDDСоздать новую подтему\uD83D\uDCDD");
         listOfButtonNames.add("\uD83C\uDFE0Назад\uD83C\uDFE0");
 
         ReplyKeyboardMarkup markup = createMarkup(listOfButtonNames);
@@ -604,8 +634,8 @@ public class LanguageBot extends TelegramLongPollingBot {
 
         long countTheme = dataBaseService.getCountTheme(chatID);
         long countSubtopic = dataBaseService.getCountSubtopic(chatID);
-        String text = "У вас: " + countTheme + " тем(а/ы)\n" +
-                "У вас: " + countSubtopic + " подтем(а/ы)";
+        String text = "У вас: " + countTheme + " тем(а/ы)\n" ;
+//                + "У вас: " + countSubtopic + " подтем(а/ы)";
         SendMessage message = new SendMessage();
         message.setChatId(chatID);
         message.setText(text);
@@ -760,13 +790,13 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void createNewWord(long chatId) {
         List<String> buttonName = new ArrayList<>();
         SendMessage sendMessage = new SendMessage();
-        String text = "Добавить слово в тему/подтему ?";
+        String text = "Добавить слово в тему ?";
         sendMessage.setChatId(chatId);
         sendMessage.setText(text);
 
         buttonName.add("Сохранить в тему");
-        buttonName.add("Сохранить в подтему");
-        buttonName.add("Создать слово без темы/подтемы");
+        //buttonName.add("Сохранить в подтему");
+        buttonName.add("Создать слово без темы");
         sendMessage.setReplyMarkup(createInlineKeyboardForNewWord(chatId, buttonName));
         try {
             execute(sendMessage);
