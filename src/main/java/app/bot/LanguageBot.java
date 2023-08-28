@@ -117,6 +117,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                             }
                         }
                         if (dataBaseService.ifCreatedTheme(chatID)) {
+                            System.out.println("создание темы");
                             saveNewTheme(chatID, textMessage);
                         }
                         if (dataBaseService.ifCreatedSubtopic(chatID)) {
@@ -179,8 +180,6 @@ public class LanguageBot extends TelegramLongPollingBot {
                 if (callback.startsWith("edit")) {
                     callback = callback.split("edit")[1];
                     if (callback.split("_").length == 2) {
-                        //System.out.println("length = 2");
-                        //System.out.println(callback);
                         String answerOption = callback.split("_")[0];
                         System.out.println(answerOption);
                         switch (answerOption) {

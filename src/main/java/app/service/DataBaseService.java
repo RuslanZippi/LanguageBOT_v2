@@ -34,22 +34,22 @@ public class DataBaseService {
         User user;
         Saver saver;
         //setDefault(saver);
-        //if (userInt.findById(chatID) == null) {
+        if (userInt.findById(chatID) == null) {
             user = new User();
             user.setId(chatID);
             saver = new Saver();
             saver.setUser(user);
             saver.setId(user.getId() + 1);
-            //setDefault(saver);
+            setDefault(saver);
             user.setSaver(saver);
             userInt.save(user);
-            //saverRep.save(saver);
-        //}
-        //else {
-           // saver = saverRep.findByUserId(chatID);
-        //}
-        setDefault(saver);
-        saverRep.save(saver);
+            saverRep.save(saver);
+        }
+        else {
+            saver = saverRep.findByUserId(chatID);
+        }
+        //setDefault(saver);
+        //saverRep.save(saver);
     }
 
     public long getCountWord(long chatID) {
@@ -247,6 +247,8 @@ public class DataBaseService {
         return themeRep.findByUsersId(chatId);
     }
     public boolean ifCreatedTheme(long chatId){
+        System.out.println("проверка создания темы");
+        System.out.println(saverRep.findByUserId(chatId).isStatusCreateTheme());
         return saverRep.findByUserId(chatId).isStatusCreateTheme();
     }
     public void createNewTheme(long chatID) {
