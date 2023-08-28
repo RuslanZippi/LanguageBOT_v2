@@ -34,6 +34,7 @@ public class DataBaseService {
         User user;
         Saver saver;
         //setDefault(saver);
+        System.out.println("user:" + userInt.findById(chatID));
         if (userInt.findById(chatID) == null) {
             user = new User();
             user.setId(chatID);
@@ -47,9 +48,9 @@ public class DataBaseService {
         }
         else {
             saver = saverRep.findByUserId(chatID);
+            setDefault(saver);
+            saverRep.save(saver);
         }
-        //setDefault(saver);
-        //saverRep.save(saver);
     }
 
     public long getCountWord(long chatID) {
@@ -390,7 +391,7 @@ public class DataBaseService {
     }
     public boolean getEditWordStatus(long chatId,String typeEdit){
         User user = userInt.findById(chatId);
-        Word word = editWordRep.findByUser(user).stream().findFirst().get().getWord();
+        //Word word = editWordRep.findByUser(user).stream().findFirst().get().getWord();
         return switch (typeEdit) {
             case "eng" -> editWordRep.findByUser(user).stream().findFirst().get().isEditEng();
             case "rus" -> editWordRep.findByUser(user).stream().findFirst().get().isEditRus();

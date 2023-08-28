@@ -47,7 +47,7 @@ public class LanguageBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             long chatID = update.getMessage().getChatId();
-            dataBaseService.checkUser(chatID);
+            //dataBaseService.checkUser(chatID);
             loggerFactory.atInfo().log(String.valueOf(chatID));
             if (chatID == 759230168 || chatID == 889552975) {
                 String textMessage = update.getMessage().getText();
@@ -102,12 +102,13 @@ public class LanguageBot extends TelegramLongPollingBot {
                         break;
                     default:
                         if (dataBaseService.isCreatedWord(chatID)) {
+                            System.out.println("creating");
                             if (dataBaseService.ifCreatedTheme(chatID)) {
                                 saveNewTheme(chatID, textMessage);
-                                sendMessage(chatID, "Введите слово на руссоком");
+                                sendMessage(chatID, "Введите слово на русском");
                             } else if (dataBaseService.ifCreatedSubtopic(chatID)) {
                                 saveNewSubtopic(chatID, textMessage);
-                                sendMessage(chatID, "Введите слово на руссоком");
+                                sendMessage(chatID, "Введите слово на русском");
                             } else {
                                 if (dataBaseService.ifExitsRus(chatID)) {
                                     patternCheck(chatID, textMessage, "rus");
@@ -127,6 +128,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                             }
                         }
                         if (dataBaseService.isEditingWord(chatID)) {
+                            System.out.println("editing");
                             editWord(chatID, textMessage);
                         }
 
@@ -156,10 +158,11 @@ public class LanguageBot extends TelegramLongPollingBot {
                 }
 
                 if (callback.startsWith("theme")) {
-                    System.out.println(callback);
+                    System.out.println("CallBack:" +callback);
                     callback = callback.split("theme")[1];
                     if (!callback.equals("-1")) {
                         dataBaseService.setWordToTheme(id, Long.parseLong(callback));
+                        sendMessage(id, "Введите слово на русском");
                     } else {
                         createNewTheme(id);
                         System.out.println(dataBaseService.getLastCreatedTheme(id).getId());
@@ -232,7 +235,7 @@ public class LanguageBot extends TelegramLongPollingBot {
             }
 
         }
-        if (dataBaseService.getEditWordStatus(chatID, "rus")) {
+        else if (dataBaseService.getEditWordStatus(chatID, "rus")) {
             if (Pattern.matches("[а-яА-ЯёЁ]*", textMessage)) {
                 dataBaseService.editRusWord(chatID, textMessage);
                 sendMessage(chatID, "Перевод изменен");
@@ -240,7 +243,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                 sendMessage(chatID, "неверный ввод");
             }
         }
-        if (dataBaseService.getEditWordStatus(chatID, "description")) {
+        else if (dataBaseService.getEditWordStatus(chatID, "description")) {
             if (dataBaseService.getEditWordStatus(chatID, "description")) {
                 if (Pattern.matches("[а-яА-ЯёЁ]*", textMessage)) {
                     dataBaseService.editDescriptionWord(chatID, textMessage);
