@@ -144,6 +144,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()) {
             long id = update.getCallbackQuery().getFrom().getId();
             String callback = update.getCallbackQuery().getData();
+            System.out.println(callback);
             if (dataBaseService.ifCreatedSubtopic(id)) {
                 callback = callback.split("theme")[1];
                 saveIdParentTheme(id, Long.parseLong(callback));
@@ -226,7 +227,23 @@ public class LanguageBot extends TelegramLongPollingBot {
                     sendMessageChoice(id, word);
                 }
             }
+            if (callback.startsWith("listWordOfTheme")) {
+                System.out.println("Выбрана тема для вывода списка слов");
+                getWordsToTheme(id, callback.split("listWordOfTheme")[1]);
+            }
         }
+    }
+
+    private void getWordsToTheme(long id, String listWordOfTheme) {
+        List<Word> wordList = dataBaseService.getThemeList(id).stream().filter(x -> x.getId() == Long.parseLong(listWordOfTheme)).findFirst().get().getWords();
+        StringBuilder builder = new StringBuilder();
+        int x = 1;
+        for (Word w : wordList) {
+            builder.append(x + ") ");
+            builder.append(w.getEngTranslation() + " - " + w.getRusTranslation() + "\n");
+            x++;
+        }
+        sendMessage(id, builder.toString());
     }
 
     private void getListWordToTheme(long chatID) {
@@ -236,9 +253,50 @@ public class LanguageBot extends TelegramLongPollingBot {
         int x = 1;
         for (Theme t : themeList) {
             builder.append(x + ") " + t.getName() + "(слов - " + getAllCountWord(t) + " )");
+            builder.append("\n");
             x++;
         }
         sendMessage(chatID, builder.toString());
+        showWordToTheme(chatID, themeList);
+    }
+
+    private void showWordToTheme(long chatId, List<Theme> themeList) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton button ;
+
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        List<InlineKeyboardButton> buttonList = new ArrayList<>();
+        String text = "listWordOfTheme";
+        for (int x = 0; x < themeList.size(); x++) {
+            if (x > 1 && x % 8 == 1) {
+                button = new InlineKeyboardButton();
+                System.out.println("9");
+                list.add(buttonList);
+                buttonList = new ArrayList<>();
+                button.setText(String.valueOf(x + 1));
+                button.setCallbackData(text + themeList.get(x).getId());
+                buttonList.add(button);
+            } else {
+                System.out.println("<9");
+                button = new InlineKeyboardButton();
+                button.setText(String.valueOf(x + 1));
+                button.setCallbackData(text + themeList.get(x).getId());
+                buttonList.add(button);
+                //list.add(buttonList);
+            }
+        }
+        list.add(buttonList);
+        markup.setKeyboard(list);
+        try {
+            execute(SendMessage.builder()
+                    .text("К какой теме вывести список слов?")
+                    .replyMarkup(markup)
+                    .chatId(chatId)
+                    .build());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private int getAllCountWord(Theme theme) {
@@ -389,7 +447,7 @@ public class LanguageBot extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         int x = 1;
         for (Theme t : buttonsName) {
-            if (x % 8 == 1) {
+            if (x % 8 == 1 && x > 1) {
                 list.add(buttonsThemeList);
                 buttonsThemeList = new ArrayList<>();
             }
@@ -421,6 +479,7 @@ public class LanguageBot extends TelegramLongPollingBot {
      *
      * @param chatID id пользователя
      */
+    @Deprecated
     private void createNewSubtopic(long chatID) {
         dataBaseService.createNewSubtopic(chatID);
         SendMessage message = new SendMessage();
@@ -440,6 +499,8 @@ public class LanguageBot extends TelegramLongPollingBot {
         }
     }
 
+
+    @Deprecated
     private void saveNewSubtopic(long chatId, String subtopicName) {
         dataBaseService.saveNewSubtopic(chatId, subtopicName);
         sendMessage(chatId, "Новая подтема добавлена");
@@ -451,6 +512,7 @@ public class LanguageBot extends TelegramLongPollingBot {
      * @param chatId    id пользователя
      * @param themeName название новой темы
      */
+
     private void saveNewTheme(long chatId, String themeName) {
         dataBaseService.saveTheme(chatId, themeName);
         sendMessage(chatId, "Новая тема добавлена");
@@ -634,7 +696,7 @@ public class LanguageBot extends TelegramLongPollingBot {
 
         long countTheme = dataBaseService.getCountTheme(chatID);
         long countSubtopic = dataBaseService.getCountSubtopic(chatID);
-        String text = "У вас: " + countTheme + " тем(а/ы)\n" ;
+        String text = "У вас: " + countTheme + " тем(а/ы)\n";
 //                + "У вас: " + countSubtopic + " подтем(а/ы)";
         SendMessage message = new SendMessage();
         message.setChatId(chatID);
