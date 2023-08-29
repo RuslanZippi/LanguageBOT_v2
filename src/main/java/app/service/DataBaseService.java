@@ -177,6 +177,7 @@ public class DataBaseService {
         saver.setEditingWord(false);
         saver.setEditingTheme(false);
         saver.setEditingSubtopic(false);
+        saver.setEditWordWithoutTheme(false);
 
         return saver;
     }
@@ -332,10 +333,15 @@ public class DataBaseService {
     public  void startEditingTheme(long chatID){
 
     }
-    public void startEditingSubtopic(long chatId){
-
+    public boolean getStatusCreatWithoutTheme(long chatID){
+        return saverRep.findByUserId(chatID).isEditWordWithoutTheme();
     }
 
+    public void setCreatWordWithoutTheme(long chatId){
+        Saver saver = saverRep.findByUserId(chatId);
+        saver.setEditWordWithoutTheme(true);
+        saverRep.save(saver);
+    }
     public void setEditWordDefault(long chatId, long wordId){
         EditWord editWord = new EditWord();
         EditWordKey editWordKey = new EditWordKey();

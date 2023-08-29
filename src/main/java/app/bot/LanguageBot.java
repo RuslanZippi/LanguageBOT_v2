@@ -108,14 +108,13 @@ public class LanguageBot extends TelegramLongPollingBot {
 //                        break;
                     default:
                         if (dataBaseService.isCreatedWord(chatID)) {
-                            System.out.println("creating");
                             if (dataBaseService.ifCreatedTheme(chatID)) {
                                 saveNewTheme(chatID, textMessage);
                                 sendMessage(chatID, "Введите слово на русском");
                             } else if (dataBaseService.ifCreatedSubtopic(chatID)) {
                                 saveNewSubtopic(chatID, textMessage);
                                 sendMessage(chatID, "Введите слово на русском");
-                            } else {
+                            } else if (dataBaseService.getStatusCreatWithoutTheme(chatID)) {
                                 if (dataBaseService.ifExitsRus(chatID)) {
                                     patternCheck(chatID, textMessage, "rus");
                                 } else if (dataBaseService.ifExitsEng(chatID)) {
@@ -124,17 +123,14 @@ public class LanguageBot extends TelegramLongPollingBot {
                             }
                         }
                         if (dataBaseService.ifCreatedTheme(chatID)) {
-                            System.out.println("создание темы");
                             saveNewTheme(chatID, textMessage);
                         }
                         if (dataBaseService.ifCreatedSubtopic(chatID)) {
                             if (dataBaseService.checkIdParentTheme(chatID) != 0) {
-                                System.out.println(dataBaseService.checkIdParentTheme(chatID));
                                 saveNewSubtopic(chatID, textMessage);
                             }
                         }
                         if (dataBaseService.isEditingWord(chatID)) {
-                            System.out.println("editing");
                             editWord(chatID, textMessage);
                         }
                         break;
@@ -156,7 +152,7 @@ public class LanguageBot extends TelegramLongPollingBot {
                         sendQuestionOne(id);
                         break;
                     case "-20":
-                        sendQuestionTwo(id);
+                        sendQuestionThree(id);
                         break;
 //                    case "-30":
 //                        sendQuestionThree(id);
@@ -262,7 +258,7 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     private void showWordToTheme(long chatId, List<Theme> themeList) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        InlineKeyboardButton button ;
+        InlineKeyboardButton button;
 
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         List<InlineKeyboardButton> buttonList = new ArrayList<>();
@@ -337,6 +333,7 @@ public class LanguageBot extends TelegramLongPollingBot {
 
     private void sendQuestionThree(long id) {
         sendMessage(id, "Введите слово на русском");
+        dataBaseService.setCreatWordWithoutTheme(id);
     }
 
     private void sendMessageChoice(long chatId, Word word) {

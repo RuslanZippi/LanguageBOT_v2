@@ -26,6 +26,8 @@ public class Saver {
     @Column(name = "editing_subtopic")
     private  boolean editingSubtopic;
 
+    private boolean editWordWithoutTheme;
+
     private String rusWord;
     private String engWord;
 
