@@ -240,13 +240,20 @@ public class LanguageBot extends TelegramLongPollingBot {
     private void getWordsToTheme(long id, String listWordOfTheme) {
         List<Word> wordList = dataBaseService.getThemeList(id).stream().filter(x -> x.getId() == Long.parseLong(listWordOfTheme)).findFirst().get().getWords();
         StringBuilder builder = new StringBuilder();
+        String text;
         int x = 1;
         for (Word w : wordList) {
             builder.append(x + ") ");
             builder.append(w.getEngTranslation() + " - " + w.getRusTranslation() + "\n");
             x++;
         }
-        sendMessage(id, builder.toString());
+        if(wordList.size()==0){
+         text = " У вас нет тем";
+        }
+        else {
+            text = builder.toString();
+        }
+        sendMessage(id, text);
     }
 
     private void getListWordToTheme(long chatID) {
