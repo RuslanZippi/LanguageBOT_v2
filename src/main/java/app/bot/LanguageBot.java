@@ -49,7 +49,7 @@ public class LanguageBot extends TelegramLongPollingBot {
             long chatID = update.getMessage().getChatId();
             //dataBaseService.checkUser(chatID);
             loggerFactory.atInfo().log(String.valueOf(chatID));
-            if (chatID == 759230168 || chatID == 889552975) {
+            if (chatID !=0) {
                 String textMessage = update.getMessage().getText();
                 switch (textMessage) {
                     case "/start":
