@@ -158,9 +158,13 @@ public class DataBaseService {
         saverRep.save(setDefault(saver));
     }
 
+    public  boolean getStatusCreateWordWithTheme(long chatId){
+        return saverRep.findByUserId(chatId).isStatusCreateWithTheme();
+    }
     public void setWordToTheme(long chatId, long themeId){
         Saver saver = saverRep.findByUserId(chatId);
         saver.setWordToTheme(themeId);
+        saver.setStatusCreateWithTheme(true);
         saverRep.save(saver);
     }
     private Saver setDefault(Saver saver) {
@@ -178,6 +182,7 @@ public class DataBaseService {
         saver.setEditingTheme(false);
         saver.setEditingSubtopic(false);
         saver.setEditWordWithoutTheme(false);
+        saver.setStatusCreateWithTheme(false);
 
         return saver;
     }
@@ -249,8 +254,8 @@ public class DataBaseService {
         return themeRep.findByUsersId(chatId);
     }
     public boolean ifCreatedTheme(long chatId){
-        System.out.println("проверка создания темы");
-        System.out.println(saverRep.findByUserId(chatId).isStatusCreateTheme());
+        //System.out.println("проверка создания темы");
+        //System.out.println(saverRep.findByUserId(chatId).isStatusCreateTheme());
         return saverRep.findByUserId(chatId).isStatusCreateTheme();
     }
     public void createNewTheme(long chatID) {

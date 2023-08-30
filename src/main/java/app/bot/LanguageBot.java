@@ -120,8 +120,15 @@ public class LanguageBot extends TelegramLongPollingBot {
                                 } else if (dataBaseService.ifExitsEng(chatID)) {
                                     patternCheck(chatID, textMessage, "eng");
                                 }
+                            } else if (dataBaseService.getStatusCreateWordWithTheme(chatID)) {
+                                if (dataBaseService.ifExitsRus(chatID)) {
+                                    patternCheck(chatID, textMessage, "rus");
+                                } else if (dataBaseService.ifExitsEng(chatID)) {
+                                    patternCheck(chatID, textMessage, "eng");
+                                }
                             }
                         }
+
                         if (dataBaseService.ifCreatedTheme(chatID)) {
                             saveNewTheme(chatID, textMessage);
                         }

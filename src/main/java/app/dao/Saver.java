@@ -26,6 +26,9 @@ public class Saver {
     @Column(name = "editing_subtopic")
     private  boolean editingSubtopic;
 
+    @Column(name = "status_create_with_theme")
+    private boolean statusCreateWithTheme;
+
     private boolean editWordWithoutTheme;
 
     private String rusWord;
